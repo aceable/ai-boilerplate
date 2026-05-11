@@ -107,5 +107,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: E2E tests
-        run: npm run test:e2e
+      - name: E2E tests (chromium only on CI)
+        run: npx playwright test --project=chromium

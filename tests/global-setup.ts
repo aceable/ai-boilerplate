@@ -1,26 +1,15 @@
-import { chromium, type FullConfig } from '@playwright/test';
+import type { FullConfig } from '@playwright/test';
 
-async function globalSetup(config: FullConfig) {
-  // Set environment variable to bypass authentication during testing
+// Global setup runs BEFORE Playwright's webServer is started, so we
+// can't hit the dev server here. Use this hook only to seed env state
+// that the webServer + tests will read. Playwright's webServer.url
+// already handles "is the server reachable" before tests start.
+//
+ 
+function globalSetup(_config: FullConfig) {
   process.env['PLAYWRIGHT_TESTING'] = 'true';
-  
+   
   console.log('🎭 Playwright Global Setup: Authentication bypass enabled');
-  
-  // Optionally warm up the server by making a test request
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  
-  try {
-    // Test that the server is running and auth bypass works
-    await page.goto(config.projects[0]?.use?.baseURL ?? 'http://localhost:3003');
-    console.log('✅ Server is running and accessible');
-  } catch (error) {
-    console.error('❌ Server startup failed:', error);
-    throw error;
-  } finally {
-    await page.close();
-    await browser.close();
-  }
 }
 
 export default globalSetup;
