@@ -63,6 +63,15 @@ jobs:
       github.event_name != 'pull_request' ||
       github.event.pull_request.draft == false
     needs: fast-checks
+    # Build-time env: dummy publishable values so prerender doesn't crash.
+    # Real values come from your hosting platform's secret store (Railway,
+    # Vercel, etc.) at runtime — these CI values let `next build` succeed
+    # without exposing any real credentials.
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5kZXYk
+      CLERK_SECRET_KEY: sk_test_ci_only_never_a_real_secret
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
 
