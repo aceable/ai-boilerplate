@@ -100,6 +100,25 @@ else
   fi
 fi
 
+# ── Branch protection (optional, admins only) ────────────────────────────────
+# Skipped silently unless the user opts in and has admin permission on the repo.
+# Set SETUP_SKIP_BRANCH_PROTECTION=1 to suppress the prompt entirely.
+if [[ "${SETUP_SKIP_BRANCH_PROTECTION:-0}" != "1" ]] && command -v gh &> /dev/null && gh auth status &> /dev/null; then
+  print_section "Branch protection (optional)"
+  print_info "Apply default-branch protection (1 review + required CI checks)?"
+  print_info "Requires repo admin permission. Safe to skip and run later."
+  read -r -p "Apply now? [y/N] " confirm_bp
+  if [[ "${confirm_bp:-N}" =~ ^[Yy]$ ]]; then
+    if ./scripts/setup-branch-protection.sh; then
+      print_success "Branch protection applied"
+    else
+      print_warning "Branch protection skipped — see error above. Re-run: npm run setup:protect"
+    fi
+  else
+    print_info "Skipped. Re-run later: npm run setup:protect"
+  fi
+fi
+
 # ── Final check ───────────────────────────────────────────────────────────────
 print_section "Running final verification..."
 npm run check
