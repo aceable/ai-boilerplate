@@ -106,9 +106,18 @@ These are non-negotiable behaviors. Follow them in every session.
 - Keep PRs small and focused — one feature or fix per PR.
 
 ### Test With Every Change
-- Write or update tests **in the same commit** as the code change. Tests are not optional follow-ups.
-- Run `npm run test` before moving on. Red tests block the next step — fix before continuing.
-- Add `data-testid` to every interactive component. See [E2E Testing](docs/testing-e2e.md).
+Full model in [docs/testing-strategy.md](docs/testing-strategy.md). Rails:
+
+- **Pyramid for server / pure logic** (most unit) — `src/lib/*.test.ts`, `tests/api/*.spec.ts`.
+- **Honeycomb for components** (largest integration) — extract logic to `src/lib/`, then `render()` the component in `*.spec.tsx`.
+- **E2E is a last resort** — only for browser lifecycle, real network roundtrip, multi-page journeys.
+- **Discriminator**: spec calls `render(...)` → integration (`*.spec.tsx`). Otherwise → unit (`*.test.ts`).
+- **Tests ship in the same commit** as the code. Untested code is unfinished.
+- **Mock at boundaries only** (network, DB, time). Heavy mocking inside a unit means the unit is too big — split it.
+- **Name by behavior**, not function: `it('rejects passwords under 8 characters')`.
+- **Coverage is a ratchet** — only goes up via `vitest.config.ts` `thresholds.autoUpdate`.
+
+Commands: `npm run test` (vitest), `npm run test:watch`, `npm run test:coverage`, `npm run test:e2e` (Playwright).
 
 ### Agent Teams
 - Decompose tasks into independent sub-problems and run sub-agents in parallel — don't serialize what can be parallelized.
@@ -164,6 +173,7 @@ Imperative rules for AI assistants (Claude, Codex, Cursor). When a rule conflict
 |-----|-------------|
 | [AI Workflow](docs/ai-workflow.md) | Commit discipline, testing, agent teams, retro detail |
 | [Development Standards](docs/development-standards.md) | Project-specific patterns: withErrorHandling, config.ts |
+| [Testing Strategy](docs/testing-strategy.md) | Pyramid + honeycomb model, layer routing, when-to-add-tests matrix |
 | [E2E Testing](docs/testing-e2e.md) | Auth bypass setup, data-testid conventions |
 | [Development Setup](docs/DEVELOPMENT.md) | DB workflow, env vars, Neon branching |
 | [Security](docs/security.md) | Full security baseline + 11-point checklist for new projects |

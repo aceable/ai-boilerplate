@@ -47,8 +47,11 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      - name: Unit + integration tests
+        run: npm run test
+
       - name: Secret scan
-        run: npx secretlint "**/*"
+        run: npx secretlint --maskSecrets "**/*"
 
       - name: Dependency audit (high+)
         run: npm audit --audit-level=high
