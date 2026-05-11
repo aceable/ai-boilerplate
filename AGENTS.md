@@ -53,6 +53,9 @@ npm run scratch:clean
 curl localhost:3003/api/health   # health check
 ```
 
+**Staying in sync with the template:**
+Repos created via `gh repo create --template` have no parent relationship — GitHub's "Sync fork" doesn't apply. To pull updates from this template: run `/sync-template`. The skill reads `.template-source` (pre-filled in this template) to know which upstream to fetch from, sets up a `template` git remote on first run, and merges `--allow-unrelated-histories` into a sync branch for review.
+
 **CI** (`.github/workflows/ci.yml`):
 - Runs on every push to main + every PR.
 - `fast-checks`: lint → type-check → secretlint → npm audit (~2-3 min, always).
