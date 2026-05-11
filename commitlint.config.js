@@ -11,13 +11,18 @@
  */
 
 const SECRET_PATTERNS = [
-  /\bsk-(?:proj-|live-|test-)?[A-Za-z0-9_-]{20,}\b/, // OpenAI / Stripe
+  /\bsk-ant-[A-Za-z0-9_-]{20,}\b/,                    // Anthropic API key
+  /\bsk-(?:proj-|live-|test-|svcacct-|admin-)?[A-Za-z0-9_-]{20,}\b/, // OpenAI / Stripe sk_
+  /\b(?:sk|rk|pk)_live_[A-Za-z0-9]{20,}\b/,           // Stripe live keys
   /\bghp_[A-Za-z0-9]{20,}\b/,                         // GitHub PAT classic
   /\bgho_[A-Za-z0-9]{20,}\b/,                         // GitHub OAuth
   /\bghs_[A-Za-z0-9]{20,}\b/,                         // GitHub App server
+  /\bgithub_pat_[A-Za-z0-9_]{20,}\b/,                 // GitHub fine-grained PAT
   /\bxox[bpars]-[A-Za-z0-9-]{10,}\b/,                 // Slack tokens
-  /\bAKIA[0-9A-Z]{16}\b/,                             // AWS access key
+  /\bAKIA[0-9A-Z]{16}\b/,                             // AWS access key id
   /\bAIza[0-9A-Za-z_-]{35}\b/,                        // Google API key
+  /-----BEGIN (?:RSA |EC |OPENSSH |PGP |DSA )?PRIVATE KEY-----/i, // Private key headers
+  /\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/, // JWT
 ];
 
 module.exports = {

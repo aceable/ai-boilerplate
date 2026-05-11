@@ -65,6 +65,26 @@ describe('commitlint no-secrets-in-message rule', () => {
     it('blocks Google API keys', () => {
       expectBlocked('feat: add AI' + 'zaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI maps');
     });
+
+    it('blocks Anthropic API keys', () => {
+      expectBlocked(`fix: rotated sk-ant-${PAT_BODY} in env`);
+    });
+
+    it('blocks Stripe live keys', () => {
+      expectBlocked(`chore: revoked sk_live_${PAT_BODY}`);
+    });
+
+    it('blocks GitHub fine-grained PATs', () => {
+      expectBlocked(`fix: rotated github_pat_${PAT_BODY}`);
+    });
+
+    it('blocks RSA private key headers', () => {
+      expectBlocked('fix: removed -----BEGIN RSA PRIVATE KEY----- block from config');
+    });
+
+    it('blocks JWT-shaped strings', () => {
+      expectBlocked('chore: invalidated session token eyJabc.eyJdef.signature_xyz');
+    });
   });
 
   describe('allows non-credential subjects', () => {

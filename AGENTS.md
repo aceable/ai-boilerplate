@@ -1,7 +1,7 @@
-# AGENTS.md – Engineering & AI Standards
+# Engineering & AI Standards
 
 > Canonical config for Claude Code, OpenAI Codex, Cursor, and other AI assistants.
-> Both Claude Code and OpenAI Codex read this file natively. Version: 2026.1
+> Available as both `AGENTS.md` and `CLAUDE.md` (symlinked). Version: 2026.1
 
 ---
 
@@ -66,7 +66,7 @@ Repos created via `gh repo create --template` have no parent relationship — Gi
 - `pre-commit` — blocks commits to `main`/`master`, runs lint-staged + secretlint
 - `pre-push` — blocks force-push to `main`/`master`, scans diff for secrets, runs `npm audit --audit-level=high`
 - `commit-msg` — enforces Conventional Commits + rejects credential-shaped strings
-- Emergency bypass: `SKIP_HUSKY=1 git ...` (audit-logged)
+- Emergency bypass: `SKIP_HUSKY=1 git ...` — use sparingly; no audit trail beyond the stderr warning
 
 ---
 

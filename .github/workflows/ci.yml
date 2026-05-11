@@ -29,9 +29,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history so secretlint can scan diff vs base
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:

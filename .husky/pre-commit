@@ -2,7 +2,7 @@
 # Pre-commit: block commits to protected branches, then run lint-staged
 # (eslint --fix on TS/TSX + secretlint on every staged file).
 #
-# Override (audit-logged):  ALLOW_MAIN_COMMIT=1 git commit ...
+# Override (use sparingly):  ALLOW_MAIN_COMMIT=1 git commit ...
 # Skip entirely (emergencies only):  SKIP_HUSKY=1 git commit ...
 
 [ "$SKIP_HUSKY" = "1" ] && exit 0
@@ -14,7 +14,7 @@ for b in $protected_branches; do
     if [ "$ALLOW_MAIN_COMMIT" != "1" ]; then
       printf '\n❌ Direct commits to "%s" are blocked.\n' "$b" >&2
       printf '   Create a feature branch:  git checkout -b feature/<short-name>\n' >&2
-      printf '   Override (audit-logged):  ALLOW_MAIN_COMMIT=1 git commit ...\n\n' >&2
+      printf '   Override (use sparingly):  ALLOW_MAIN_COMMIT=1 git commit ...\n\n' >&2
       exit 1
     fi
     printf '⚠️  Override active: committing directly to "%s"\n' "$b" >&2
