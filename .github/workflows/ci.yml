@@ -9,6 +9,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # Include ready_for_review so the e2e-and-build job kicks off when a PR
+    # transitions from draft to ready (default types omit this event).
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 # Cancel superseded runs on the same ref to avoid stacking minutes.
