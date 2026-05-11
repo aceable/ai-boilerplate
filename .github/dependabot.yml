@@ -1,0 +1,56 @@
+version: 2
+
+# Dependabot keeps dependencies current without consuming Actions minutes.
+# Grouped updates collapse N small PRs into 1 per ecosystem per week so the
+# review load and CI burn stay predictable on the GitHub Free plan.
+#
+# Adjust schedule / groups as the project grows. Security alerts always open
+# individual PRs regardless of grouping.
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    labels:
+      - dependencies
+      - npm
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    groups:
+      production-deps:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+      development-deps:
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Etc/UTC
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      actions:
+        patterns:
+          - '*'
