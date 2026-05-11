@@ -45,16 +45,25 @@ npm run db:migrate   # apply to production
 
 **Setup / validation:**
 ```bash
-npm run check        # validate prerequisites
-npm run setup        # full first-time setup
-npm run setup:gh     # GitHub CLI only
+npm run check         # validate prerequisites
+npm run setup         # full first-time setup
+npm run setup:gh      # GitHub CLI only
+npm run setup:protect # apply default-branch protection (admins only)
 npm run scratch:clean
 curl localhost:3003/api/health   # health check
 ```
 
-**CI** (opt-in — see `.github/workflows/ci.yml`):
-- Disabled by default; uncomment the `on:` triggers to activate.
-- Steps: lint → type-check → build → E2E. Confirm GitHub Actions billing before enabling on private repos.
+**CI** (`.github/workflows/ci.yml`):
+- Runs on every push to main + every PR.
+- `fast-checks`: lint → type-check → secretlint → npm audit (~2-3 min, always).
+- `e2e-and-build`: Playwright + next build (skipped on draft PRs).
+- Concurrency group cancels superseded runs so minutes don't stack.
+
+**Git hooks** (auto-installed by `husky` on `npm install`):
+- `pre-commit` — blocks commits to `main`/`master`, runs lint-staged + secretlint
+- `pre-push` — blocks force-push to `main`/`master`, scans diff for secrets, runs `npm audit --audit-level=high`
+- `commit-msg` — enforces Conventional Commits + rejects credential-shaped strings
+- Emergency bypass: `SKIP_HUSKY=1 git ...` (audit-logged)
 
 ---
 
@@ -124,6 +133,31 @@ These are non-negotiable behaviors. Follow them in every session.
 
 ---
 
+## Security
+
+Built **security-first** — every control runs by default. Full baseline in [docs/security.md](docs/security.md).
+
+- Secrets live in env vars, never code. `.env*` is gitignored; secretlint enforces this on commit, push, and PR.
+- Git history is forever — a deleted-then-committed secret must be **rotated in its source system**.
+- Order: **Fix → Rotate → Update → Verify → Document**. Rotating first leaves a window where the old credential still works.
+- Least privilege on every key: read-only when possible, separate per env + per service, fine-grained PATs.
+- Branch protection: `npm run setup:protect` (admins only).
+
+---
+
+## AI Checkpoints
+
+Imperative rules for AI assistants (Claude, Codex, Cursor). When a rule conflicts with what the user asked, follow the rule and surface the conflict.
+
+- **CHECK-IN before commit** — Show `git diff --cached` and wait for "yes" / "proceed" before `git commit`. Skip only if the user explicitly delegated the session.
+- **SECRETS off-limits** — Never `cat`/`echo`/`grep`/`head` files matching `.env*`, `*.pem`, `*.key`, `*.p12`, `*secret*`, `*token*`, or `*credential*`. Tell the user how to view them in a separate terminal instead.
+- **MAIN GUARD** — Refuse direct commits to `main`/`master`. Always feature branch + draft PR. The pre-commit hook also enforces this.
+- **ROTATION FIRST** — On finding a secret in history, produce a Fix → Rotate → Update → Verify → Document checklist before any code edits. Deleting the literal first creates a credential-still-valid window.
+- **AUDIT POST-INSTALL** — After `npm install` of new deps, run `npm audit` and surface high/critical findings. Don't absorb them silently.
+- **NO CREDENTIAL ECHO** — Never run commands that echo, decode, or display credential values — not even partial.
+
+---
+
 ## Docs
 
 | Doc | What's in it |
@@ -132,6 +166,7 @@ These are non-negotiable behaviors. Follow them in every session.
 | [Development Standards](docs/development-standards.md) | Project-specific patterns: withErrorHandling, config.ts |
 | [E2E Testing](docs/testing-e2e.md) | Auth bypass setup, data-testid conventions |
 | [Development Setup](docs/DEVELOPMENT.md) | DB workflow, env vars, Neon branching |
+| [Security](docs/security.md) | Full security baseline + 11-point checklist for new projects |
 
 ---
 
