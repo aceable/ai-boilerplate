@@ -30,6 +30,14 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# scratch — ephemeral experiments, never committed
+.scratch/
 
 # debug
 npm-debug.log*
