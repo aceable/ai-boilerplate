@@ -57,8 +57,9 @@ jobs:
     name: Build + Playwright E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Skip on draft PRs and on docs-only changes; keep running on direct
-    # pushes to main (which never have a PR draft state) and on workflow_dispatch.
+    # Skip on draft PRs; always runs on push to main and on workflow_dispatch.
+    # If you also want to skip on docs-only changes, add a paths-ignore filter
+    # to the workflow's `on:` block above or wire a changed-files action here.
     if: >
       github.event_name != 'pull_request' ||
       github.event.pull_request.draft == false

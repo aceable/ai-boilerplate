@@ -74,9 +74,11 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'PLAYWRIGHT_TESTING=true npm run dev',
-    url: 'http://localhost:3003',
+    /* 127.0.0.1 (not 'localhost') — must match baseURL above so the     */
+    /* readiness probe uses the same address tests will navigate to.     */
+    url: 'http://127.0.0.1:3003',
     reuseExistingServer: !process.env['CI'],
-    timeout: 60 * 1000, // 2 minutes timeout
+    timeout: 60 * 1000, // 60 seconds
     ignoreHTTPSErrors: true,
   },
 });
