@@ -1,0 +1,50 @@
+#!/bin/sh
+# Pre-push: defense-in-depth checks before code leaves the machine.
+#   1. Block force-push to protected branches (main / master)
+#   2. Scan the diff vs upstream for secrets (secretlint)
+#   3. Run npm audit at --audit-level=high
+#
+# Skip entirely (emergencies only): SKIP_HUSKY=1 git push ...
+# Skip audit only (when fix is queued): SKIP_AUDIT=1 git push ...
+
+[ "$SKIP_HUSKY" = "1" ] && exit 0
+
+protected_branches="main master"
+zero_sha="0000000000000000000000000000000000000000"
+
+# 1. Force-push guard — read stdin ref tuples
+while read -r local_ref local_sha remote_ref remote_sha; do
+  remote_branch=${remote_ref#refs/heads/}
+  for b in $protected_branches; do
+    if [ "$remote_branch" = "$b" ] && [ "$remote_sha" != "$zero_sha" ]; then
+      if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+        printf '\n❌ Force-push to "%s" is blocked by pre-push hook.\n' "$b" >&2
+        printf '   Rebase or open a fresh branch instead.\n\n' >&2
+        exit 1
+      fi
+    fi
+  done
+done
+
+# 2. Secret scan on diff vs upstream
+upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo "origin/main")
+changed=$(git diff --name-only --diff-filter=ACMR "$upstream"...HEAD 2>/dev/null || true)
+if [ -n "$changed" ]; then
+  printf '→ secretlint on diff vs %s\n' "$upstream"
+  echo "$changed" | tr '\n' '\0' | xargs -0 npx secretlint || {
+    printf '\n❌ secretlint flagged a staged secret. Fix the code, then rotate the credential.\n\n' >&2
+    exit 1
+  }
+fi
+
+# 3. npm audit
+if [ "$SKIP_AUDIT" = "1" ]; then
+  printf '⚠️  Skipping npm audit (SKIP_AUDIT=1)\n' >&2
+else
+  printf '→ npm audit --audit-level=high\n'
+  npm audit --audit-level=high || {
+    printf '\n❌ npm audit found high/critical vulnerabilities.\n' >&2
+    printf '   Resolve with: npm audit fix    (or run with SKIP_AUDIT=1 if fix is in flight)\n\n' >&2
+    exit 1
+  }
+fi

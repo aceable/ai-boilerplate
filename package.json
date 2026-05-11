@@ -80,6 +80,9 @@
     "lint-staged": {
         "*.{ts,tsx}": [
             "eslint --fix"
+        ],
+        "*": [
+            "secretlint --maskSecrets"
         ]
     }
 }
