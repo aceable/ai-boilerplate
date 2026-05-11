@@ -17,8 +17,10 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
-    include: ['{src,tests}/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['tests/**/*.e2e.{ts,tsx}', 'tests/smoke.spec.ts', 'node_modules', '.next'],
+    // Vitest owns unit (*.test.ts) and integration (*.spec.tsx).
+    // Playwright owns *.e2e.ts — excluded here. See docs/testing-strategy.md.
+    include: ['{src,tests}/**/*.test.ts', '{src,tests}/**/*.spec.tsx'],
+    exclude: ['node_modules', '.next', 'tests/**/*.e2e.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
