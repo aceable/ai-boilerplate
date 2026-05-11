@@ -1,0 +1,10 @@
+#!/bin/sh
+# commit-msg: validate the commit message before it lands.
+#   - Conventional Commits structure (via @commitlint/config-conventional)
+#   - Custom rule blocks credential-shaped strings in the message
+#
+# Skip (emergencies only): SKIP_HUSKY=1 git commit ...
+
+[ "$SKIP_HUSKY" = "1" ] && exit 0
+
+npx --no-install commitlint --edit "$1"
