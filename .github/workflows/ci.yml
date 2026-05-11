@@ -1,25 +1,34 @@
-# Optional CI pipeline — enable by uncommenting the `on:` triggers below.
-# GitHub Actions is billed per-minute for private repos; confirm your team's billing before enabling.
-# To disable: delete this file or comment out the `on:` block.
-
 name: CI
 
-# Uncomment to activate:
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-#     branches: [main]
+# Minute-frugal CI: fast checks run on every push/PR; heavy checks
+# (Playwright, full build) only on non-draft PRs targeting main.
+# Adjust the heavy-gate condition per your team's billing comfort.
 
-# Placeholder trigger (no-op) so the file is valid YAML when triggers are commented out:
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
+# Cancel superseded runs on the same ref to avoid stacking minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  ci:
+  fast-checks:
+    name: Fast checks (lint · type-check · secretlint · audit)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so secretlint can scan diff vs base
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -35,11 +44,56 @@ jobs:
       - name: Type check
         run: npm run type-check
 
-      - name: Build
-        run: npm run build
+      - name: Secret scan
+        run: npx secretlint "**/*"
+
+      - name: Dependency audit (high+)
+        run: npm audit --audit-level=high
+
+  e2e-and-build:
+    name: Build + Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Skip on draft PRs and on docs-only changes; keep running on direct
+    # pushes to main (which never have a PR draft state) and on workflow_dispatch.
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.draft == false
+    needs: fast-checks
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get Playwright version
+        id: pw
+        run: |
+          PW_VERSION=$(node -p "require('@playwright/test/package.json').version")
+          echo "version=$PW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
 
       - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system deps (cache hit path)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Build
+        run: npm run build
 
       - name: E2E tests
         run: npm run test:e2e
