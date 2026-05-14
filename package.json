@@ -73,7 +73,7 @@
         "@types/ws": "^8.18.1",
         "commitlint": "^21.0.1",
         "dotenv": "^17.3.1",
-        "eslint": "^9.39.3",
+        "eslint": "^10.3.0",
         "eslint-config-next": "15.5.12",
         "husky": "^9.1.7",
         "lint-staged": "^16.1.2",
