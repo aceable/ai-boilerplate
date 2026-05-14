@@ -35,6 +35,7 @@
         "scratch:clean": "find .scratch -type f -name '*.ts' -o -name '*.js' -o -name '*.tsx' -o -name '*.jsx' | xargs rm -f 2>/dev/null; true"
     },
     "dependencies": {
+        "@ai-sdk/anthropic": "^3.0.77",
         "@ai-sdk/openai": "^2.0.94",
         "@clerk/nextjs": "^6.38.2",
         "@neondatabase/serverless": "^1.0.2",
