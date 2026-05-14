@@ -60,6 +60,7 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@commitlint/config-conventional": "^21.0.1",
         "@eslint/eslintrc": "^3.3.4",
         "@playwright/test": "^1.58.2",
         "@secretlint/secretlint-rule-preset-recommend": "^9.3.3",
@@ -69,6 +70,7 @@
         "@types/react-dom": "^19.2.3",
         "@types/uuid": "^11.0.0",
         "@types/ws": "^8.18.1",
+        "commitlint": "^21.0.1",
         "dotenv": "^17.3.1",
         "eslint": "^9.39.3",
         "eslint-config-next": "15.5.12",

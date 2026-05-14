@@ -4,7 +4,7 @@
         "buildCommand": "npm run build"
     },
     "deploy": {
-        "startCommand": "npm run db:migrate && next start -p $PORT",
+        "startCommand": "next start -p $PORT",
         "healthcheckPath": "/api/health",
         "healthcheckTimeout": 100
     }
