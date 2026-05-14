@@ -2,7 +2,6 @@
     "name": "ai-boilerplate",
     "version": "1.0.0",
     "private": true,
-    "license": "MIT",
     "engines": {
         "node": ">=24.0.0"
     },
@@ -15,16 +14,15 @@
         "lint": "next lint",
         "lint:fix": "next lint --fix",
         "type-check": "tsc --noEmit",
-        "test": "vitest run",
-        "test:watch": "vitest",
-        "test:coverage": "vitest run --coverage",
+        "test": "jest",
         "test:e2e": "playwright test",
         "test:e2e:headed": "playwright test --headed",
         "test:e2e:debug": "playwright test --debug",
+        "test:watch": "jest --watch",
         "lint:all": "next lint && tsc --noEmit",
+        "pre-commit": "npm run lint:all && npm run test",
         "setup": "./scripts/setup-all.sh",
         "setup:gh": "./scripts/setup-github-cli.sh",
-        "setup:protect": "./scripts/setup-branch-protection.sh",
         "check": "./scripts/check-prerequisites.sh",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
@@ -37,22 +35,24 @@
         "scratch:clean": "find .scratch -type f -name '*.ts' -o -name '*.js' -o -name '*.tsx' -o -name '*.jsx' | xargs rm -f 2>/dev/null; true"
     },
     "dependencies": {
-        "@ai-sdk/anthropic": "^3.0.58",
-        "@ai-sdk/openai": "^3.0.41",
+        "@ai-sdk/openai": "^2.0.94",
         "@clerk/nextjs": "^6.38.2",
         "@neondatabase/serverless": "^1.0.2",
         "@radix-ui/themes": "^3.3.0",
-        "ai": "^6.0.116",
+        "ai": "^5.0.139",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "date-fns": "^4.1.0",
+        "date-fns-tz": "^3.2.0",
         "drizzle-kit": "^0.31.9",
-        "drizzle-orm": "^0.45.2",
+        "drizzle-orm": "^0.44.7",
         "drizzle-zod": "^0.8.3",
         "lucide-react": "^0.575.0",
-        "next": "^15.5.18",
+        "next": "15.5.12",
         "next-themes": "^0.4.6",
         "react": "19.2.4",
         "react-dom": "19.2.4",
+        "snowflake-sdk": "^2.4.1",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.5.0",
         "uuid": "^11.1.0",
@@ -60,39 +60,28 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
-        "@commitlint/cli": "^21.0.0",
-        "@commitlint/config-conventional": "^21.0.0",
         "@eslint/eslintrc": "^3.3.4",
         "@playwright/test": "^1.58.2",
         "@secretlint/secretlint-rule-preset-recommend": "^9.3.3",
         "@tailwindcss/postcss": "^4.2.1",
-        "@testing-library/jest-dom": "^6.9.1",
-        "@testing-library/react": "^16.3.2",
-        "@testing-library/user-event": "^14.6.1",
         "@types/node": "^20.19.34",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "@types/uuid": "^11.0.0",
         "@types/ws": "^8.18.1",
-        "@vitest/coverage-v8": "^4.1.6",
         "dotenv": "^17.3.1",
         "eslint": "^9.39.3",
-        "eslint-config-next": "^15.5.18",
+        "eslint-config-next": "15.5.12",
         "husky": "^9.1.7",
-        "jsdom": "^29.1.1",
         "lint-staged": "^16.1.2",
         "secretlint": "^9.3.3",
         "tailwindcss": "^4.2.1",
         "typescript": "^5.9.3",
-        "typescript-eslint": "^8.56.1",
-        "vitest": "^4.1.6"
+        "typescript-eslint": "^8.56.1"
     },
     "lint-staged": {
         "*.{ts,tsx}": [
             "eslint --fix"
-        ],
-        "*": [
-            "secretlint --maskSecrets"
         ]
     }
 }

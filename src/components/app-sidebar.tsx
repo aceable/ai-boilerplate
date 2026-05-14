@@ -1,7 +1,7 @@
 'use client';
 
 import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail } from '@/components/ui/sidebar';
-import { Home } from 'lucide-react';
+import { Home, BarChart2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -17,6 +17,14 @@ export function AppSidebar() {
               <Link href="/">
                 <Home className="h-5 w-5" />
                 <span>Home</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname.startsWith('/lifecycle')} tooltip="Lifecycle Dashboard">
+              <Link href="/lifecycle">
+                <BarChart2 className="h-5 w-5" />
+                <span>Lifecycle</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
