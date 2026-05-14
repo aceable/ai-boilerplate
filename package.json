@@ -36,7 +36,7 @@
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^3.0.77",
-        "@ai-sdk/openai": "^2.0.94",
+        "@ai-sdk/openai": "^3.0.63",
         "@clerk/nextjs": "^6.38.2",
         "@neondatabase/serverless": "^1.0.2",
         "@radix-ui/themes": "^3.3.0",
