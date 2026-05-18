@@ -36,30 +36,6 @@ export default async function LifecyclePage({ searchParams }: PageProps) {
 
   const data = await getLifecycleWeeklyData({ brand, vertical });
 
-  const sumMetric = (
-    a: typeof data.emailRevenue,
-    b: typeof data.emailRevenue,
-    c: typeof data.emailRevenue,
-  ) => {
-    const cur = a.value + b.value + c.value;
-    const momPrev =
-      a.value / (1 + a.momDelta || 1) +
-      b.value / (1 + b.momDelta || 1) +
-      c.value / (1 + c.momDelta || 1);
-    const yoyPrev =
-      a.value / (1 + a.yoyDelta || 1) +
-      b.value / (1 + b.yoyDelta || 1) +
-      c.value / (1 + c.yoyDelta || 1);
-    return {
-      value: cur,
-      momDelta: momPrev !== 0 ? (cur - momPrev) / momPrev : 0,
-      yoyDelta: yoyPrev !== 0 ? (cur - yoyPrev) / yoyPrev : 0,
-    };
-  };
-
-  const lifecycleRevenue = sumMetric(data.emailRevenue, data.smsRevenue, data.pushRevenue);
-  const lifecycleOrders = sumMetric(data.emailOrders, data.smsOrders, data.pushOrders);
-
   const period = formatPeriod(data.periodStart, data.periodEnd);
   const updatedAt = data.generatedAt.toLocaleString('en-US', {
     timeZone: CT_TIMEZONE,
@@ -115,19 +91,19 @@ export default async function LifecyclePage({ searchParams }: PageProps) {
         >
           <MetricCard
             label="Lifecycle Revenue"
-            value={lifecycleRevenue.value}
+            value={data.totalRevenue.value}
             format="currency"
-            momDelta={lifecycleRevenue.momDelta}
-            yoyDelta={lifecycleRevenue.yoyDelta}
+            momDelta={data.totalRevenue.momDelta}
+            yoyDelta={data.totalRevenue.yoyDelta}
             favorableDirection="up"
             data-testid="card-total-revenue"
           />
           <MetricCard
             label="Lifecycle Orders"
-            value={lifecycleOrders.value}
+            value={data.totalOrders.value}
             format="number"
-            momDelta={lifecycleOrders.momDelta}
-            yoyDelta={lifecycleOrders.yoyDelta}
+            momDelta={data.totalOrders.momDelta}
+            yoyDelta={data.totalOrders.yoyDelta}
             favorableDirection="up"
             data-testid="card-total-orders"
           />

@@ -79,9 +79,9 @@ export async function fetchLifecycleWeeklyData(
   const vertical = filters?.vertical && filters.vertical !== 'All' ? filters.vertical : null;
 
   // Extra WHERE clauses appended when a filter is active
-  const orderFilters = [
-    brand    ? `AND BRAND_NAME = '${brand}'`       : '',
-    vertical ? `AND VERTICAL_NM = '${vertical}'`   : '',
+  const financeFilters = [
+    brand    ? `AND BRAND = '${brand}'`         : '',
+    vertical ? `AND VERTICAL = '${vertical}'`   : '',
   ].filter(Boolean).join('\n        ');
 
   const campaignFilters = [
@@ -101,12 +101,12 @@ export async function fetchLifecycleWeeklyData(
   try {
     const volumeQuery = (s: Date, e: Date) => `
       SELECT
-        SUM(NET_AMT)         AS total_revenue,
-        COUNT(ORDER_ID)      AS total_orders
-      FROM POWERBI.MAIN.PBI_SALES_ORDERS_FACT_WITH_DIM
-      WHERE REFUND_ORDERS = 0
-        AND CHARGE_DATE_CST::DATE ${dateRange(s, e)}
-        ${orderFilters}
+        SUM(SALES)   AS total_revenue,
+        SUM(ORDERS)  AS total_orders
+      FROM POWERBI.MAIN.PBI_FINANCE_ACTUALS_FOR_PLANFUL_DAILY
+      WHERE CHANNEL_NM_2026 = 'Lifecycle'
+        AND DATE ${dateRange(s, e)}
+        ${financeFilters}
     `;
 
     const sendsQuery = (s: Date, e: Date) => `
