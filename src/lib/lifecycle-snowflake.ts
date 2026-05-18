@@ -157,6 +157,7 @@ export async function fetchLifecycleWeeklyData(
       executeAsync(conn, volumeQuery(momStart, momEnd), []),
       executeAsync(conn, volumeQuery(yoyStart, yoyEnd), []),
     ]);
+    console.info('[lifecycle] raw volume result:', JSON.stringify(volume[0]));
 
     const [sends, sendsMom, sendsYoy] = await Promise.all([
       executeAsync(conn, sendsQuery(start, end), []),
