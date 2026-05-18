@@ -1,5 +1,6 @@
 import snowflake from 'snowflake-sdk';
 import { subWeeks } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import type { LifecycleWeeklyData, MetricValue } from '@/types/lifecycle';
 import type { LifecycleFilters } from '@/lib/lifecycle-data';
 
@@ -73,7 +74,10 @@ export async function fetchLifecycleWeeklyData(
   const yoyStart = subWeeks(start, 52);
   const yoyEnd = subWeeks(end, 52);
 
-  const toDateStr = (d: Date) => d.toISOString().slice(0, 10);
+  const toDateStr = (d: Date) => {
+    const ct = toZonedTime(d, 'America/Chicago');
+    return `${ct.getFullYear()}-${String(ct.getMonth() + 1).padStart(2, '0')}-${String(ct.getDate()).padStart(2, '0')}`;
+  };
 
   const brand = filters?.brand && filters.brand !== 'All' ? filters.brand : null;
   const vertical = filters?.vertical && filters.vertical !== 'All' ? filters.vertical : null;
