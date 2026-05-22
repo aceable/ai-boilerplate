@@ -25,7 +25,7 @@ THE GOAL — get all of this done in order:
    Teams: eng (Engineering), mkt (Marketing), prd (Product), fin (Finance)
    Examples: eng-kn-invoice-tool, mkt-jd-landing-pages, prd-al-roadmap-viz
 4. Create the repo:
-   gh repo create aceable-ai/{name} --template aceable-ai/ai-boilerplate --clone --private
+   gh repo create aceable-ai/{name} --template aceable/ai-boilerplate --clone --private
    (If permission error, tell me to ask in #engineering on Slack)
 5. npm install
 6. cp .env.example .env.local
