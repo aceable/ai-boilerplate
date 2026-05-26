@@ -130,11 +130,11 @@ curl localhost:3003/api/health   # health check
 **Staying in sync with the template:**
 Repos created via `gh repo create --template` have no parent relationship — GitHub's "Sync fork" doesn't apply. To pull updates from this template: run `/sync-template`. The skill reads `.template-source` (pre-filled in this template) to know which upstream to fetch from, sets up a `template` git remote on first run, and merges `--allow-unrelated-histories` into a sync branch for review.
 
-**CI** (`.github/workflows/ci.yml`):
-- Runs on every push to main + every PR.
-- `fast-checks`: lint → type-check → secretlint → npm audit (~2-3 min, always).
-- `e2e-and-build`: Playwright + next build (skipped on draft PRs).
-- Concurrency group cancels superseded runs so minutes don't stack.
+**CI** (two workflows, both default-on):
+- `.github/workflows/build.yml` — always-on `next build` smoke test on every PR + push to main. Uses placeholder Clerk env vars so no secrets are required. Catches build-time env failures (e.g. missing `publishableKey`) at PR time.
+- `.github/workflows/ci.yml` — `fast-checks` (lint → type-check → secretlint → npm audit) on every push/PR; `e2e-and-build` (Playwright + next build) on non-draft PRs only. Concurrency cancels superseded runs.
+
+To **disable** either workflow on cost-sensitive forks: delete the file, comment out the `on:` triggers, or restrict triggers to `workflow_dispatch` only.
 
 **Git hooks** (auto-installed by `husky` on `npm install`):
 - `pre-commit` — blocks commits to `main`/`master`, runs lint-staged + secretlint

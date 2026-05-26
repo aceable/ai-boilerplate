@@ -19,8 +19,9 @@ need terms like "Terminal", "repo", and "environment variable" explained in plai
 
 THE GOAL — get all of this done in order:
 1. Open a terminal (help me find the right app for my OS)
-2. Make sure prerequisites are installed: git, Homebrew (Mac/WSL), nvm, Node.js v20+,
-   and GitHub CLI. Check each one and help me install anything missing.
+2. Make sure prerequisites are installed: git, Homebrew (Mac/WSL), nvm, Node.js v24+
+   (match `.nvmrc` — `nvm install` with no argument picks it up), and GitHub CLI.
+   Check each one and help me install anything missing.
 3. Pick a repo name using format: {team}-{initials}-{project}
    Teams: eng (Engineering), mkt (Marketing), prd (Product), fin (Finance)
    Examples: eng-kn-invoice-tool, mkt-jd-landing-pages, prd-al-roadmap-viz
@@ -39,7 +40,18 @@ THE GOAL — get all of this done in order:
    what to copy into .env.local).
 8. If I set up a database in step 7: npm run db:push
    If I skipped it, skip this too.
-9. npm run dev — confirm I can open http://localhost:3003
+9. npm run dev — confirm I can open http://localhost:3003.
+10. When I'm ready to deploy, walk me through Railway:
+    - Install the Railway CLI if I don't have it: npm install -g @railway/cli
+    - railway login (opens a browser)
+    - railway link (pick the project/environment/service)
+    - Set env vars via CLI before the first push (NEXT_PUBLIC_* must be set
+      BEFORE the build runs — they're inlined at build time):
+      railway variables --set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+                        --set CLERK_SECRET_KEY=sk_test_...
+    - railway up (uploads the worktree, builds, deploys)
+    - Use pk_test_* keys for the Railway preview URL — pk_live_* keys are
+      domain-locked by Clerk and will refuse to load on *.up.railway.app.
 
 If anything fails, help me debug patiently. Start now.
 ```
@@ -61,7 +73,7 @@ These must be installed and working before setup. The prompt above will guide yo
 | **git** | `git --version` | macOS: `xcode-select --install` |
 | **Homebrew** | `brew --version` | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
 | **nvm** | `nvm --version` | `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh \| bash` |
-| **Node.js** | `node --version` | `nvm install 20` |
+| **Node.js** | `node --version` | `nvm install` (reads `.nvmrc` — currently v24) |
 | **GitHub CLI** | `gh auth status` | `brew install gh` then `gh auth login` |
 | **Railway CLI** | `railway --version` | `npm install -g @railway/cli` |
 
