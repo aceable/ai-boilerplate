@@ -4,8 +4,10 @@
     "private": true,
     "license": "MIT",
     "engines": {
-        "node": ">=24.0.0"
+        "node": ">=24.0.0",
+        "npm": ">=11.0.0"
     },
+    "packageManager": "npm@11.12.1",
     "scripts": {
         "postinstall": "node scripts/link-skills.js",
         "prepare": "husky",
