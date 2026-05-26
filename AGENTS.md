@@ -163,11 +163,11 @@ When syncing across a major version boundary (`v1.x` → `v2.x`):
 
 ### How breaking changes are conveyed (upstream contract)
 
-If you're editing **this** template (not a child repo), the obligation is:
+If you're editing **this** template (not a child repo):
 
-1. **Tag every release.** `git tag -a v1.4.0 -m "..."` after merging to main; push tags.
-2. **Update `CHANGELOG.md`** (Keep-a-Changelog format). Anything that breaks downstream — env-var renames, file moves, dep majors, auth-flow changes — gets a `### BREAKING` subsection with a migration note.
-3. **Bump major on breaking changes.** `v1.x` → `v2.0.0` is a signal to every child repo that they should run the major-upgrade flow above, not a passive monthly sync.
+1. **Update `CHANGELOG.md` `[Unreleased]` in every PR.** See [CHANGELOG.md — update on every user-visible PR](#changelogmd--update-on-every-user-visible-pr) for the per-section routing and the BREAKING entry format. This is the per-PR obligation, not a release-time chore.
+2. **Tag every release.** `git tag -a v1.4.0 -m "..."` after merging to main; push tags. Move `[Unreleased]` entries into the new tagged section.
+3. **Bump major on breaking changes.** `v1.x` → `v2.0.0` is the signal for every child repo to run the major-upgrade flow above, not a passive monthly sync.
 
 ---
 
@@ -257,6 +257,29 @@ These are non-negotiable behaviors. Follow them in every session.
 - Commit every time the build passes and the change is coherent — before pivoting.
 - Format: `type(scope): short description` (`feat`, `fix`, `chore`, `refactor`, `test`, `docs`)
 - Keep PRs small and focused — one feature or fix per PR.
+
+### CHANGELOG.md — update on every user-visible PR
+
+Downstream repos rely on this file to know what changed since their last template sync. If they don't see it here, they don't catch it. Update `[Unreleased]` in `CHANGELOG.md` **as part of the same PR** — before marking ready for review.
+
+**When to update:**
+
+| PR touches | Add entry under |
+|---|---|
+| New file/feature in `src/`, new env var, new route, new script | `### Added` |
+| Non-breaking change to existing behavior, refactor users would notice, doc/CLI/config tweak | `### Changed` |
+| Bug fix that affects downstream behavior | `### Fixed` |
+| Security patch (incl. dep audit fixes that close CVEs) | `### Security` |
+| Removal of public API, feature, env var, file path | `### Removed` |
+| **Anything a child repo must act on during a sync** — env rename, file move, dep major bump, auth-flow change, config-shape change | `### BREAKING` (always with a one-line migration note) |
+
+**When to skip:**
+
+- Internal-only churn no downstream would ever see: comment-only edits, `.scratch/` work, README typo fixes, internal test refactors that don't change test coverage.
+
+**Release-time:**
+
+When cutting a tag (`v1.4.0`, `v2.0.0`), move every entry from `[Unreleased]` to a new `## [v1.x.0] - YYYY-MM-DD` section. Tag pushes signal child repos to run a sync. See [Template Sync](#template-sync) for the downstream side.
 
 ### Test With Every Change
 Full model in [docs/testing-strategy.md](docs/testing-strategy.md). Rails:
