@@ -28,7 +28,7 @@ This template ships with Clerk auth wired up and **on by default whenever Clerk 
 
 | Env state | Behavior |
 |-----------|----------|
-| `ENABLE_USER_AUTH=0` | Auth OFF regardless of keys (public sites) |
+| `NEXT_PUBLIC_ENABLE_USER_AUTH=0` | Auth OFF regardless of keys (public sites) |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` blank or missing | Auth OFF (graceful local-dev fallback — clone + `npm run dev` Just Works) |
 | Both present | Auth ON |
 
@@ -45,13 +45,13 @@ This template ships with Clerk auth wired up and **on by default whenever Clerk 
 Pick one:
 
 - **Auth ON in prod (default):** add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and any other Clerk env you use, then redeploy. Without these, the deployed site will boot as a public, unauthenticated app (the graceful fallback above) — which is probably not what you want for a production app.
-- **Auth OFF in prod (public site):** add `ENABLE_USER_AUTH=0` to Railway Variables and redeploy. Skip the Clerk keys entirely.
+- **Auth OFF in prod (public site):** add `NEXT_PUBLIC_ENABLE_USER_AUTH=0` to Railway Variables and redeploy. Skip the Clerk keys entirely.
 
 ⚠️ `NEXT_PUBLIC_*` variables are inlined at build time — adding them after a build only fixes server-side reads. **You must redeploy** for the client bundle to pick them up.
 
 **To turn auth OFF locally (public site mode):**
 
-Set `ENABLE_USER_AUTH=0` in `.env.local`. The middleware becomes a no-op, `ClerkProvider` is skipped, and the header's sign-in/user buttons disappear.
+Set `NEXT_PUBLIC_ENABLE_USER_AUTH=0` in `.env.local`. The middleware becomes a no-op, `ClerkProvider` is skipped, and the header's sign-in/user buttons disappear.
 
 **Auth surface:**
 
