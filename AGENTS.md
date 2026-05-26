@@ -94,6 +94,83 @@ For Railway specifically, deploy via `railway up` from the repo root after `rail
 
 ---
 
+## Template Sync
+
+This repo was created from [`aceable/ai-boilerplate`](https://github.com/aceable/ai-boilerplate) via `gh repo create --template`. GitHub's "Sync fork" doesn't work for template-clones — they have no parent relationship. Pull updates manually.
+
+The upstream template URL lives in `.template-source` (pre-filled in this template). Child repos additionally maintain `.template-sync-state` — a single-line file holding the SHA of the last template commit they merged. The AI agent running the sync creates this file on the **first** sync and updates it on every subsequent sync.
+
+### One-time setup (per child repo)
+
+```bash
+git remote add template https://github.com/aceable/ai-boilerplate.git
+git fetch template
+```
+
+Verify with `git remote -v` — you should see both `origin` (your repo) and `template` (the boilerplate).
+
+### Periodic sync (recommended monthly, always on a branch)
+
+```bash
+# 1. Make sure your working tree is clean and you're on a fresh branch off main.
+git checkout main && git pull
+git checkout -b chore/template-sync-$(date +%Y%m%d)
+
+# 2. Fetch the latest template state.
+git fetch template
+
+# 3. Capture what changed since your last sync (see audit checklist below).
+#    FIRST sync: skip — diff against the merge base picked by git instead.
+#    SUBSEQUENT syncs:
+#      LAST=$(cat .template-sync-state)
+#      git log $LAST..template/main --oneline
+#      git diff $LAST..template/main --stat
+
+# 4. Merge — --allow-unrelated-histories is required for template merges.
+git merge template/main --allow-unrelated-histories
+
+# 5. Update the sync-state file to the new template HEAD.
+git rev-parse template/main > .template-sync-state
+git add .template-sync-state && git commit --amend --no-edit
+
+# 6. Run the post-merge audit (next section), resolve conflicts, push, PR.
+```
+
+### Post-merge audit (mandatory before opening the PR)
+
+Run this checklist after every template merge. The point is to catch breaking changes in this child repo that the merge alone won't surface.
+
+1. **Read what changed.** `git log $LAST..template/main --oneline` (where `$LAST` = previous content of `.template-sync-state`). Look for `BREAKING:`, `feat!:`, or anything in the upstream `CHANGELOG.md` flagged as a breaking change.
+2. **Reinstall + lockfile sanity.** `npm install` (regenerates lockfile after merge). If `package.json` had upstream changes, run `/dependency` to audit each non-patch bump for impact on this child repo's call sites.
+3. **Run the build pipeline.**
+   - `npm run lint:all` — type errors usually surface here first
+   - `npm run test`
+   - `npm run build`
+   - `npm run test:e2e` (only if upstream changed routing, middleware, or auth)
+4. **Diff config files this repo customized.** `git diff HEAD~1 -- .env.example tailwind.config.ts next.config.ts drizzle.config.ts` — if the template added new required env vars or changed a config shape, mirror the change in `.env.local` and (if deploying) the Railway/hosting env.
+5. **Verify auth + theme still wire correctly.** Both the optional-auth flag (see [Auth Setup](#auth-setup-clerk)) and the system-theme path. If the upstream changed `src/lib/env.ts` or `src/middleware.ts`, re-confirm `USER_AUTH_ENABLED` resolves as expected.
+
+### Handling major / breaking template versions
+
+The upstream template uses **semver-style git tags** for releases (`v1.0.0`, `v1.1.0`, `v2.0.0`). Tag the breaking releases as majors.
+
+When syncing across a major version boundary (`v1.x` → `v2.x`):
+
+- Stop. Don't merge yet. `git log v1.x..v2.0.0 -- CHANGELOG.md` and read every breaking note.
+- Run `/dependency` against the upstream diff — major template versions typically pull in major framework versions (Next.js, Clerk, etc.).
+- Split the work: one PR for the framework upgrade (with codemods if available), a separate PR for the template merge itself. Easier to revert.
+- Update `.template-sync-state` only after both PRs land and the child repo's tests pass.
+
+### How breaking changes are conveyed (upstream contract)
+
+If you're editing **this** template (not a child repo), the obligation is:
+
+1. **Tag every release.** `git tag -a v1.4.0 -m "..."` after merging to main; push tags.
+2. **Update `CHANGELOG.md`** (Keep-a-Changelog format). Anything that breaks downstream — env-var renames, file moves, dep majors, auth-flow changes — gets a `### BREAKING` subsection with a migration note.
+3. **Bump major on breaking changes.** `v1.x` → `v2.0.0` is a signal to every child repo that they should run the major-upgrade flow above, not a passive monthly sync.
+
+---
+
 ## Stack
 
 Next.js 15 (App Router, Turbopack) · React 19 · TypeScript strict · Tailwind CSS v4 · Drizzle ORM · Neon Postgres · Clerk Auth · AI SDK · Railway deployment
@@ -127,8 +204,7 @@ npm run scratch:clean
 curl localhost:3003/api/health   # health check
 ```
 
-**Staying in sync with the template:**
-Repos created via `gh repo create --template` have no parent relationship — GitHub's "Sync fork" doesn't apply. To pull updates from this template: run `/sync-template`. The skill reads `.template-source` (pre-filled in this template) to know which upstream to fetch from, sets up a `template` git remote on first run, and merges `--allow-unrelated-histories` into a sync branch for review.
+**Staying in sync with the template:** see [Template Sync](#template-sync) below.
 
 **CI** (two workflows, both default-on):
 - `.github/workflows/build.yml` — always-on `next build` smoke test on every PR + push to main. Uses placeholder Clerk env vars so no secrets are required. Catches build-time env failures (e.g. missing `publishableKey`) at PR time.
