@@ -22,56 +22,63 @@ Then: `npm install` → `cp .env.example .env.local` → fill credentials → `n
 
 ## Auth Setup (Clerk)
 
-This template ships with Clerk auth wired up and **on by default whenever Clerk keys are present**. Most apps cloned from here are gated to signed-in users — the middleware protects every route except `/sign-in`, `/sign-up`, and `/api/health`.
+Clerk is wired in and protects every route except `/sign-in`, `/sign-up`, `/api/health`. The flag `USER_AUTH_ENABLED` in `src/lib/env.ts` is the single source of truth — middleware, layout, and header all read it.
 
-**Auth resolution (single source: `src/lib/auth-config.ts`):**
+### Resolution
 
-| Env state | Behavior |
-|-----------|----------|
-| `NEXT_PUBLIC_ENABLE_USER_AUTH=0` | Auth OFF regardless of keys (public sites) |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` blank or missing | Auth OFF (graceful local-dev fallback — clone + `npm run dev` Just Works) |
-| Both present | Auth ON |
+| Env state | `USER_AUTH_ENABLED` |
+|---|---|
+| `NEXT_PUBLIC_ENABLE_USER_AUTH=0` (or `false`, `no`, `off`) | `false` |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` missing or blank | `false` |
+| Otherwise | `true` |
 
-**To set up auth (first time, local):**
+`false` → middleware no-ops, `ClerkProvider` is skipped, header omits sign-in/user buttons. The app boots as a public site with no Clerk runtime loaded.
 
-1. **If you set this up through your company**, ask them for a shared Clerk dev key — most orgs run one Clerk dev instance that every internal app reuses. Paste `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` into `.env.local`.
-2. **If you're solo / personal**, create a free Clerk app at [dashboard.clerk.com](https://dashboard.clerk.com), open its API Keys panel, and copy both values into `.env.local`.
-3. Restart the dev server. Visit `/` — you'll be redirected to `/sign-in` and can create your first user.
+### Test keys vs production keys (read this before deploying)
 
-**Deploying to Railway:**
+Clerk issues two key pairs per instance: **test** (`pk_test_*` / `sk_test_*`) and **production** (`pk_live_*` / `sk_live_*`). Production keys are **domain-locked** server-side by Clerk — they refuse any origin that isn't on the registered production domain. Test keys work on any origin.
 
-> **You must explicitly set env vars on Railway before your deployed site works as intended.** Railway doesn't read your local `.env.local` — every variable has to be added in the project's Variables tab.
+| Environment | Keys |
+|---|---|
+| Local (`localhost`) | `pk_test_*` / `sk_test_*` |
+| Railway / Vercel preview / any non-prod URL | `pk_test_*` / `sk_test_*` |
+| Production deploy on your real domain | `pk_live_*` / `sk_live_*` |
 
-Pick one:
+Using `pk_live_*` against a non-production origin fails with `Clerk: Production Keys are only allowed for domain "<your-prod-domain>"` and breaks the page even when the flag/code is correct. If you're on a company-shared Clerk instance, ask the owner for the test keys for non-prod deploys.
 
-- **Auth ON in prod (default):** add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and any other Clerk env you use, then redeploy. Without these, the deployed site will boot as a public, unauthenticated app (the graceful fallback above) — which is probably not what you want for a production app.
-- **Auth OFF in prod (public site):** add `NEXT_PUBLIC_ENABLE_USER_AUTH=0` to Railway Variables and redeploy. Skip the Clerk keys entirely.
+### First-time setup
 
-⚠️ `NEXT_PUBLIC_*` variables are inlined at build time — adding them after a build only fixes server-side reads. **You must redeploy** for the client bundle to pick them up.
+1. Get keys: company Clerk owner for a shared dev instance, or create one at [dashboard.clerk.com](https://dashboard.clerk.com).
+2. Paste into `.env.local`. Restart dev server.
+3. Visit `/` → redirects to `/sign-in` → create first user.
 
-**To turn auth OFF locally (public site mode):**
+To run locally without auth: leave Clerk keys blank, or set `NEXT_PUBLIC_ENABLE_USER_AUTH=0`.
 
-Set `NEXT_PUBLIC_ENABLE_USER_AUTH=0` in `.env.local`. The middleware becomes a no-op, `ClerkProvider` is skipped, and the header's sign-in/user buttons disappear.
+### Deploying
 
-**Auth surface:**
+Hosting providers do **not** read `.env.local`. Set vars in the provider's UI before deploying. `NEXT_PUBLIC_*` values are inlined at build time, so **redeploy after changing any of them** — restart alone won't pick up new values.
 
-- `src/lib/auth-config.ts` — `USER_AUTH_ENABLED` flag (single source of truth)
-- `src/middleware.ts` — gates routes when on, pass-through when off
-- `src/app/sign-in/[[...sign-in]]/page.tsx` + `src/app/sign-up/[[...sign-up]]/page.tsx` — Clerk's `<SignIn />` / `<SignUp />` mounted at standard paths
-- `src/app/layout.tsx` — `<ClerkProvider>` wrapped conditionally
-- `src/components/header.tsx` — `<SignedIn>` / `<SignedOut>` rendered conditionally
+For Railway specifically, deploy via `railway up` from the repo root after `railway login` + `railway link`.
+
+### Files
+
+- `src/lib/env.ts` — flag resolution
+- `src/middleware.ts` — Clerk middleware or no-op
+- `src/app/layout.tsx` — conditional `<ClerkProvider>`
+- `src/components/header.tsx` — conditional sign-in / user button
+- `src/app/sign-in/[[...sign-in]]/page.tsx`, `src/app/sign-up/[[...sign-up]]/page.tsx` — Clerk `<SignIn />` / `<SignUp />`
 
 ---
 
 ## Theme
 
-Next-themes is wired up with **system preference as the default** — the app picks light or dark based on the user's OS setting on first load. A toggle in the top-right header lets them flip it.
+`next-themes` with `defaultTheme="system"` — follows OS preference on first load; toggle in the top-right header overrides.
 
-- `src/components/theme-provider.tsx` — wraps `next-themes`' `ThemeProvider`
-- `src/components/theme-toggle.tsx` — Sun/Moon icon button; hydration-safe placeholder until mounted
-- `src/app/globals.css` — Tailwind v4 tokens (`:root` + `.dark`) plus `tw-animate-css` for shadcn animations
+### Files
 
-To customize colors, edit the HSL CSS vars in `src/app/globals.css`. Both light and dark palettes live in the same file.
+- `src/components/theme-provider.tsx` — wraps `next-themes`
+- `src/components/theme-toggle.tsx` — Sun/Moon button, hydration-safe
+- `src/app/globals.css` — Tailwind v4 tokens (light + dark) + `tw-animate-css`
 
 ---
 
