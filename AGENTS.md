@@ -20,6 +20,61 @@ Then: `npm install` → `cp .env.example .env.local` → fill credentials → `n
 
 ---
 
+## Auth Setup (Clerk)
+
+This template ships with Clerk auth wired up and **on by default whenever Clerk keys are present**. Most apps cloned from here are gated to signed-in users — the middleware protects every route except `/sign-in`, `/sign-up`, and `/api/health`.
+
+**Auth resolution (single source: `src/lib/auth-config.ts`):**
+
+| Env state | Behavior |
+|-----------|----------|
+| `ENABLE_USER_AUTH=0` | Auth OFF regardless of keys (public sites) |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` blank or missing | Auth OFF (graceful local-dev fallback — clone + `npm run dev` Just Works) |
+| Both present | Auth ON |
+
+**To set up auth (first time, local):**
+
+1. **If you set this up through your company**, ask them for a shared Clerk dev key — most orgs run one Clerk dev instance that every internal app reuses. Paste `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` into `.env.local`.
+2. **If you're solo / personal**, create a free Clerk app at [dashboard.clerk.com](https://dashboard.clerk.com), open its API Keys panel, and copy both values into `.env.local`.
+3. Restart the dev server. Visit `/` — you'll be redirected to `/sign-in` and can create your first user.
+
+**Deploying to Railway:**
+
+> **You must explicitly set env vars on Railway before your deployed site works as intended.** Railway doesn't read your local `.env.local` — every variable has to be added in the project's Variables tab.
+
+Pick one:
+
+- **Auth ON in prod (default):** add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and any other Clerk env you use, then redeploy. Without these, the deployed site will boot as a public, unauthenticated app (the graceful fallback above) — which is probably not what you want for a production app.
+- **Auth OFF in prod (public site):** add `ENABLE_USER_AUTH=0` to Railway Variables and redeploy. Skip the Clerk keys entirely.
+
+⚠️ `NEXT_PUBLIC_*` variables are inlined at build time — adding them after a build only fixes server-side reads. **You must redeploy** for the client bundle to pick them up.
+
+**To turn auth OFF locally (public site mode):**
+
+Set `ENABLE_USER_AUTH=0` in `.env.local`. The middleware becomes a no-op, `ClerkProvider` is skipped, and the header's sign-in/user buttons disappear.
+
+**Auth surface:**
+
+- `src/lib/auth-config.ts` — `USER_AUTH_ENABLED` flag (single source of truth)
+- `src/middleware.ts` — gates routes when on, pass-through when off
+- `src/app/sign-in/[[...sign-in]]/page.tsx` + `src/app/sign-up/[[...sign-up]]/page.tsx` — Clerk's `<SignIn />` / `<SignUp />` mounted at standard paths
+- `src/app/layout.tsx` — `<ClerkProvider>` wrapped conditionally
+- `src/components/header.tsx` — `<SignedIn>` / `<SignedOut>` rendered conditionally
+
+---
+
+## Theme
+
+Next-themes is wired up with **system preference as the default** — the app picks light or dark based on the user's OS setting on first load. A toggle in the top-right header lets them flip it.
+
+- `src/components/theme-provider.tsx` — wraps `next-themes`' `ThemeProvider`
+- `src/components/theme-toggle.tsx` — Sun/Moon icon button; hydration-safe placeholder until mounted
+- `src/app/globals.css` — Tailwind v4 tokens (`:root` + `.dark`) plus `tw-animate-css` for shadcn animations
+
+To customize colors, edit the HSL CSS vars in `src/app/globals.css`. Both light and dark palettes live in the same file.
+
+---
+
 ## Stack
 
 Next.js 15 (App Router, Turbopack) · React 19 · TypeScript strict · Tailwind CSS v4 · Drizzle ORM · Neon Postgres · Clerk Auth · AI SDK · Railway deployment

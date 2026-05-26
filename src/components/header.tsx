@@ -1,6 +1,8 @@
 import { APP_NAME } from '@/lib/config';
+import { USER_AUTH_ENABLED } from '@/lib/auth-config';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function Header() {
   return (
@@ -15,13 +17,18 @@ export default function Header() {
           </Link>
         </div>
       </div>
-      <div className="ml-auto flex items-center gap-4">
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+      <div className="ml-auto flex items-center gap-3">
+        <ThemeToggle />
+        {USER_AUTH_ENABLED && (
+          <>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </>
+        )}
       </div>
     </header>
   );

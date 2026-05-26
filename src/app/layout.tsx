@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Inter } from 'next/font/google';
 import type React from 'react';
+import { USER_AUTH_ENABLED } from '@/lib/auth-config';
 import ClientLayout from './client-layout';
 import './globals.css';
 
@@ -19,16 +20,24 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const content = (
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <MyThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ClientLayout>{children}</ClientLayout>
+          <Toaster />
+        </MyThemeProvider>
+      </body>
+    </html>
+  );
+
+  if (!USER_AUTH_ENABLED) return content;
+
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <MyThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <ClientLayout>{children}</ClientLayout>
-            <Toaster />
-          </MyThemeProvider>
-        </body>
-      </html>
+    <ClerkProvider
+      appearance={{ layout: { unsafe_disableDevelopmentModeWarnings: true } }}
+    >
+      {content}
     </ClerkProvider>
   );
 }
