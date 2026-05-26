@@ -42,6 +42,10 @@ Headings:
 
 - `railway.json` `startCommand` previously chained `npm run db:migrate && next start`; without `DATABASE_URL` the migrate step failed and `next start` never ran, breaking the healthcheck. Now guarded by `if [ -n "$DATABASE_URL" ]; then ...` so keyless smoke deploys succeed.
 
+### Security
+
+- `js-cookie` pinned to `^3.0.7` via npm `overrides` to clear the high-severity prototype-hijack CVE (GHSA-qjx8-664m-686j) that surfaced through `@clerk/shared`'s transitive dep. Required for `npm audit --audit-level=high` (the CI fast-checks gate) to exit 0.
+
 ### Notes for first-time downstream sync (to v1.0.0)
 
 Nothing in v1.0.0 is BREAKING in the semver sense — this is the first tagged release, so no prior template version exists to migrate from. The optional-auth flag and the new files are additive and default to behavior that matches the previous hand-rolled approach (Clerk on whenever keys are present).
