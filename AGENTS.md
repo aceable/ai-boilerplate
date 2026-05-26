@@ -100,7 +100,7 @@ This repo was created from [`aceable/ai-boilerplate`](https://github.com/aceable
 
 The upstream template URL lives in `.template-source` (pre-filled in this template). Child repos additionally maintain `.template-sync-state` — a single-line file holding the SHA of the last template commit they merged. The AI agent running the sync creates this file on the **first** sync and updates it on every subsequent sync.
 
-> **Optional helper:** the `/sync-template` skill (if installed) automates the remote-add + branch + merge dance below. It does **not** currently implement the post-merge audit checklist — run that manually regardless. If the skill isn't installed, follow the steps below verbatim.
+> **Bundled helper:** the `/sync-template` skill ships in `.agents/skills/sync-template/` and is auto-linked into `.claude/skills/` by `postinstall` on `npm install`. It automates the remote-add + branch + merge dance below. It does **not** yet implement the post-merge audit checklist — run that manually regardless of how the merge was triggered.
 
 ### One-time setup (per child repo)
 

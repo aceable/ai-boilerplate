@@ -25,6 +25,7 @@ Headings:
 - System-aware theme with toggle in top-right header (`src/components/theme-toggle.tsx`).
 - `.github/workflows/build.yml` — always-on `next build` smoke test on PRs and main pushes, secret-free with a shape-valid Clerk placeholder.
 - `CHANGELOG.md` (this file) and `## Template Sync` section in `AGENTS.md` documenting the sync + post-merge audit flow.
+- `/sync-template` skill bundled in `.agents/skills/sync-template/` (auto-linked into `.claude/skills/` by `postinstall`). Automates the remote-add + branch + `--allow-unrelated-histories` merge dance for child repos. **Post-merge audit checklist is not yet implemented in the skill** — run it manually per `AGENTS.md#template-sync`.
 - `## CHANGELOG.md — update on every user-visible PR` subsection in `AGENTS.md` Workflow with a routing table (Added/Changed/Fixed/Security/Removed/BREAKING) so future PRs land changelog entries deterministically.
 - README onboarding prompt: Railway CLI deploy step with `pk_test_*` vs `pk_live_*` domain-lock callout.
 - `packageManager` field in `package.json` (npm 11.12.1) so Railway/nixpacks stops inferring.
