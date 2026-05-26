@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { USER_AUTH_ENABLED } from '@/lib/auth-config';
+import { IS_PLAYWRIGHT, USER_AUTH_ENABLED } from '@/lib/env';
 
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
@@ -9,12 +9,7 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 const clerkMiddlewareInstance = clerkMiddleware(async (auth, request) => {
-  if (
-    process.env.NODE_ENV === 'development' &&
-    process.env['PLAYWRIGHT_TESTING'] === 'true'
-  ) {
-    return;
-  }
+  if (IS_PLAYWRIGHT) return;
 
   if (!isPublicRoute(request)) {
     await auth.protect();

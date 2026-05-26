@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Inter } from 'next/font/google';
 import type React from 'react';
-import { USER_AUTH_ENABLED } from '@/lib/auth-config';
+import { USER_AUTH_ENABLED } from '@/lib/env';
 import ClientLayout from './client-layout';
 import './globals.css';
 

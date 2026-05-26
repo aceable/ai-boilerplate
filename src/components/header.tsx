@@ -1,5 +1,5 @@
 import { APP_NAME } from '@/lib/config';
-import { USER_AUTH_ENABLED } from '@/lib/auth-config';
+import { USER_AUTH_ENABLED } from '@/lib/env';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
