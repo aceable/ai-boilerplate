@@ -5,6 +5,18 @@
 
 ---
 
+## Doc style (applies to every edit of this file and any doc in this repo)
+
+**Terse, declarative, durable.** Each line earns its place. Spec entries, not narrative.
+
+- **Progressive disclosure** — top of every section answers the 80% case in one paragraph. Edge cases, troubleshooting, deeper rationale → linked sub-sections or `docs/*.md`.
+- **80/20 rule** — only put something in this file if every AI session needs it. Occasional reference → `docs/`. One-off context → `// Why:` inline comment.
+- **No drift surfaces** — file paths, env var names, and config keys must match the code at the time of writing. Re-grep before merging doc edits.
+- **No conversational phrasing or UI step-throughs** — they go stale when the underlying tool's UI changes. State the rule, not the click path.
+- **One source of truth per fact** — repeating a rule across sections creates drift. Cross-reference instead.
+
+---
+
 ## First-Time Setup
 
 Guide the user through these tools in order before anything else:
@@ -198,12 +210,7 @@ Commands: `npm run test` (vitest), `npm run test:watch`, `npm run test:coverage`
 - After completing any feature or session: ask "what was confusing? what slowed things down?"
 - If something was hard to find → update the relevant doc.
 - If a pattern kept recurring → add it to `docs/development-standards.md`.
-- Keep this file under 200 lines. If AGENTS.md grows, move detail to a doc and link it.
-
-### 80/20 Documentation
-- Before adding anything here: "Does every AI session need this, or just occasionally?"
-- Occasional reference → goes in `docs/`, linked from here.
-- One-off context → inline `// Why:` comment in code.
+- Keep this file under 200 lines. If AGENTS.md grows, move detail to a doc and link it. (See the **Doc style** section at the top for the full rule.)
 
 ---
 
