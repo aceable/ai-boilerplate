@@ -1,7 +1,7 @@
 version: 2
 
 # Dependabot keeps dependencies current without consuming Actions minutes.
-# Grouped updates collapse N small PRs into 1 per ecosystem per week so the
+# Grouped updates collapse N small PRs into 1 per ecosystem per cycle so the
 # review load and CI burn stay predictable on the GitHub Free plan.
 #
 # Adjust schedule / groups as the project grows. Security alerts always open
@@ -9,32 +9,43 @@ version: 2
 
 updates:
   - package-ecosystem: npm
-    directory: /
+    # Multiple manifest locations (supports globs too)
+    directories:
+      - /
     schedule:
-      interval: weekly
-      day: monday
-      time: '06:00'
-      timezone: Etc/UTC
-    open-pull-requests-limit: 5
-    versioning-strategy: increase-if-necessary
-    labels:
-      - dependencies
-      - npm
-    commit-message:
-      prefix: chore
-      prefix-development: chore
-      include: scope
+      interval: monthly
+    versioning-strategy: increase
+
+    # Wait out the npm supply-chain attack window before pulling updates.
+    # Security advisories bypass cooldown automatically.
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
+
     groups:
-      production-deps:
-        dependency-type: production
+      non-major:
+        patterns:
+          - "*"
         update-types:
-          - patch
           - minor
-      development-deps:
-        dependency-type: development
+          - patch
+        applies-to: version-updates
+
+    # Optional: reduce noise
+    # open-pull-requests-limit: 2
+
+    # Block major bumps that are gated behind a coordinated Next.js 16 migration.
+    # Re-enable once Next 15 → 16 lands across the template-derived repos:
+    # eslint-config-next 16 requires Next 16; eslint 10 requires eslint-config-next 16.
+    ignore:
+      - dependency-name: "eslint"
         update-types:
-          - patch
-          - minor
+          - "version-update:semver-major"
+      - dependency-name: "eslint-config-next"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: github-actions
     directory: /
