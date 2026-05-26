@@ -23,21 +23,27 @@ Headings:
 - `src/lib/env.ts` centralizes all env-derived flags (`USER_AUTH_ENABLED`, `IS_DEV`, `IS_PLAYWRIGHT`, `DATABASE_URL`).
 - `/sign-in/[[...sign-in]]` and `/sign-up/[[...sign-up]]` routes mounting Clerk's `<SignIn />` / `<SignUp />`.
 - System-aware theme with toggle in top-right header (`src/components/theme-toggle.tsx`).
-- `.github/workflows/build.yml` — always-on `next build` smoke test on PRs and main pushes, secret-free.
-- `CHANGELOG.md` and Template Sync section in `AGENTS.md` documenting the sync + audit flow.
+- `.github/workflows/build.yml` — always-on `next build` smoke test on PRs and main pushes, secret-free with a shape-valid Clerk placeholder.
+- `CHANGELOG.md` (this file) and `## Template Sync` section in `AGENTS.md` documenting the sync + post-merge audit flow.
+- `## CHANGELOG.md — update on every user-visible PR` subsection in `AGENTS.md` Workflow with a routing table (Added/Changed/Fixed/Security/Removed/BREAKING) so future PRs land changelog entries deterministically.
+- README onboarding prompt: Railway CLI deploy step with `pk_test_*` vs `pk_live_*` domain-lock callout.
 - `packageManager` field in `package.json` (npm 11.12.1) so Railway/nixpacks stops inferring.
 
 ### Changed
 
-- `AGENTS.md`: hoisted doc-style principles to the top; tightened Auth Setup section; added Theme + Template Sync sections.
-- `railway.json` `startCommand` guards `db:migrate` behind `DATABASE_URL` presence so keyless smoke deploys succeed.
-- Homepage rewritten to reflect optional auth, system theme, Railway preference, and to remove hallucinated slash-command references.
+- `AGENTS.md`: hoisted doc-style principles (terse, progressive disclosure, 80/20, no drift surfaces, one source of truth) to the top; tightened Auth Setup section; added Theme, Template Sync, and per-PR CHANGELOG rule sections; updated CI section to document both `build.yml` and `ci.yml` plus how to disable on cost-sensitive forks.
+- Homepage rewritten to reflect optional auth, system theme, Railway preference; removed hallucinated `/dev`, `/lint`, `/build`, `/db-push` slash-command references that pointed at a non-existent `.claude/commands/` dir; fixed `AGENT.md` typo to `AGENTS.md`; replaced broken `/api/README.md` Next.js `Link` with a plain file pointer.
+- README onboarding prompt: Node version corrected from v20+ to v24 (matches `.nvmrc`); `nvm install` invocation reads `.nvmrc` instead of pinning `20`.
 - `.template-source` updated from `aceable-ai/ai-boilerplate` to `aceable/ai-boilerplate` after the GitHub org transfer.
 - `.gitignore`: added `!.env.example` exception so the template tracks the example file.
 
+### Fixed
+
+- `railway.json` `startCommand` previously chained `npm run db:migrate && next start`; without `DATABASE_URL` the migrate step failed and `next start` never ran, breaking the healthcheck. Now guarded by `if [ -n "$DATABASE_URL" ]; then ...` so keyless smoke deploys succeed.
+
 ### BREAKING
 
-- **`ENABLE_USER_AUTH` → `NEXT_PUBLIC_ENABLE_USER_AUTH`**. The flag must be prefixed `NEXT_PUBLIC_` so it's inlined into the client bundle; otherwise server and client disagree on `USER_AUTH_ENABLED` and Clerk's `<SignedIn>`/`<SignedOut>` throw at runtime. *Migration:* rename the env var in `.env.local` and on every hosting platform (Railway, Vercel, etc.). Redeploy.
+- **`ENABLE_USER_AUTH` → `NEXT_PUBLIC_ENABLE_USER_AUTH`**. The flag must be prefixed `NEXT_PUBLIC_` so it's inlined into the client bundle; otherwise server and client disagree on `USER_AUTH_ENABLED` and Clerk's `<SignedIn>`/`<SignedOut>` throw at runtime. *Migration:* rename the env var in `.env.local` and on every hosting platform (Railway, Vercel, etc.). Redeploy so the new `NEXT_PUBLIC_*` value gets inlined.
 - **`src/lib/auth-config.ts` removed; use `src/lib/env.ts`.** Imports change from `@/lib/auth-config` to `@/lib/env`. *Migration:* `grep -rn 'auth-config' src/` and replace each import path.
 
 ---
