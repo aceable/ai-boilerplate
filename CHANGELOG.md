@@ -41,10 +41,16 @@ Headings:
 
 - `railway.json` `startCommand` previously chained `npm run db:migrate && next start`; without `DATABASE_URL` the migrate step failed and `next start` never ran, breaking the healthcheck. Now guarded by `if [ -n "$DATABASE_URL" ]; then ...` so keyless smoke deploys succeed.
 
-### BREAKING
+### Notes for first-time downstream sync (to v1.0.0)
 
-- **`ENABLE_USER_AUTH` → `NEXT_PUBLIC_ENABLE_USER_AUTH`**. The flag must be prefixed `NEXT_PUBLIC_` so it's inlined into the client bundle; otherwise server and client disagree on `USER_AUTH_ENABLED` and Clerk's `<SignedIn>`/`<SignedOut>` throw at runtime. *Migration:* rename the env var in `.env.local` and on every hosting platform (Railway, Vercel, etc.). Redeploy so the new `NEXT_PUBLIC_*` value gets inlined.
-- **`src/lib/auth-config.ts` removed; use `src/lib/env.ts`.** Imports change from `@/lib/auth-config` to `@/lib/env`. *Migration:* `grep -rn 'auth-config' src/` and replace each import path.
+Nothing in v1.0.0 is BREAKING in the semver sense — this is the first tagged release, so no prior template version exists to migrate from. The optional-auth flag and the new files are additive and default to behavior that matches the previous hand-rolled approach (Clerk on whenever keys are present).
+
+What downstream sync agents should expect:
+
+- **Likely merge conflicts** in customized template files: `src/components/header.tsx`, `src/middleware.ts`, `src/app/layout.tsx`, `src/app/client-layout.tsx`, `src/app/page.tsx`. Resolution rule: keep your project-specific UI/branding, adopt the optional-auth flag wiring (read `USER_AUTH_ENABLED` from `src/lib/env.ts` in each).
+- **New files that won't conflict** unless you happen to have files at the same paths: `src/lib/env.ts`, `src/app/sign-in/[[...sign-in]]/page.tsx`, `src/app/sign-up/[[...sign-up]]/page.tsx`, `src/components/theme-toggle.tsx`, `.github/workflows/build.yml`, `CHANGELOG.md`, `.template-sync-state` (you create this on first sync).
+- **No env var changes required.** If you set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` today, `USER_AUTH_ENABLED` resolves to true and the app behaves as it did before. Add `NEXT_PUBLIC_ENABLE_USER_AUTH=0` only if you want the new public-site mode.
+- **Adopt `src/lib/env.ts` opportunistically.** Not required — your existing `process.env.*` reads keep working. But consolidating into the new module is a one-time cleanup worth doing during this sync, not a separate PR.
 
 ---
 
