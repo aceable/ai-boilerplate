@@ -32,7 +32,7 @@
         "setup:protect": "./scripts/setup-branch-protection.sh",
         "check": "./scripts/check-prerequisites.sh",
         "db:generate": "drizzle-kit generate",
-        "db:migrate": "drizzle-kit migrate",
+        "db:migrate": "node scripts/migrate.mjs",
         "db:push": "drizzle-kit push",
         "db:studio": "drizzle-kit studio",
         "db:branch:create": "neonctl branches create --project-id $NEON_PROJECT_ID --name",
