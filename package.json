@@ -87,7 +87,7 @@
         "husky": "^9.1.7",
         "jsdom": "^29.1.1",
         "lint-staged": "^16.1.2",
-        "secretlint": "^9.3.3",
+        "secretlint": "^13.0.2",
         "tailwindcss": "^4.2.1",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.56.1",
