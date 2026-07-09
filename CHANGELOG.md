@@ -29,6 +29,7 @@ Headings:
 - `## CHANGELOG.md — update on every user-visible PR` subsection in `AGENTS.md` Workflow with a routing table (Added/Changed/Fixed/Security/Removed/BREAKING) so future PRs land changelog entries deterministically.
 - README onboarding prompt: Railway CLI deploy step with `pk_test_*` vs `pk_live_*` domain-lock callout.
 - `packageManager` field in `package.json` (npm 11.12.1) so Railway/nixpacks stops inferring.
+- `scripts/migrate.mjs` — production migration runner using drizzle-orm's migrator over the app's own Neon `Pool` + `ws` connection. Replaces `drizzle-kit migrate`, which bundles its own Neon driver with no way to set `neonConfig.webSocketConstructor` and stalls when applying a pending migration (Neon runs transactions over a websocket); it is also a devDep, absent from the prod image.
 
 ### Changed
 
@@ -40,11 +41,15 @@ Headings:
 
 ### Fixed
 
-- `railway.json` `startCommand` previously chained `npm run db:migrate && next start`; without `DATABASE_URL` the migrate step failed and `next start` never ran, breaking the healthcheck. Now guarded by `if [ -n "$DATABASE_URL" ]; then ...` so keyless smoke deploys succeed.
+- `railway.json` no longer runs migrations in `startCommand`. Migrations move to `deploy.preDeployCommand: npm run db:migrate` and `startCommand` is just `next start -p $PORT`. Pre-deploy runs once per deployment (not per-replica) in its own container, and a failed migration blocks the deploy instead of crash-looping the server — replacing the earlier boot-coupled `db:migrate && next start` (and its `DATABASE_URL` guard), which failed the healthcheck the moment a real migration needed applying.
 
 ### Security
 
 - `js-cookie` pinned to `^3.0.7` via npm `overrides` to clear the high-severity prototype-hijack CVE (GHSA-qjx8-664m-686j) that surfaced through `@clerk/shared`'s transitive dep. Required for `npm audit --audit-level=high` (the CI fast-checks gate) to exit 0.
+
+### BREAKING
+
+- **Deploy migration path changed — child repos must adopt during sync.** `db:migrate` now runs `node scripts/migrate.mjs` (was `drizzle-kit migrate`), and `railway.json` runs it in `deploy.preDeployCommand` (was chained into `startCommand`). Migration: pull `scripts/migrate.mjs`, repoint `db:migrate` in `package.json`, and move migrations to `preDeployCommand` in `railway.json` (drop any `db:migrate && next start` chain). A repo whose schema was managed by `drizzle-kit push` has no migration ledger — it must generate a baseline (`npm run db:generate`) and mark it applied on already-populated DBs before the first preDeploy migrate, or the baseline's `CREATE TABLE`s collide. See `tickets-aceable-ai#74` for the reference cutover.
 
 ### Notes for first-time downstream sync (to v1.0.0)
 
