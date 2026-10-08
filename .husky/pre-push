@@ -31,7 +31,8 @@ upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo "origin/
 changed=$(git diff --name-only --diff-filter=ACMR "$upstream"...HEAD 2>/dev/null || true)
 if [ -n "$changed" ]; then
   printf '→ secretlint on diff vs %s\n' "$upstream"
-  echo "$changed" | tr '\n' '\0' | xargs -0 npx secretlint --no-gitignore || {
+  # -z keeps git from C-quoting non-ASCII paths, which secretlint would skip as missing files.
+  git diff -z --name-only --diff-filter=ACMR "$upstream"...HEAD | xargs -0 npx secretlint --maskSecrets --no-gitignore || {
     printf '\n❌ secretlint flagged a secret in the diff vs %s. Fix the code, then rotate the credential.\n\n' "$upstream" >&2
     exit 1
   }

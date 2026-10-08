@@ -49,7 +49,7 @@ jobs:
 
       - name: Secret scan
         # Tracked files only; --no-gitignore so a force-added ignored file is still scanned.
-        run: git ls-files -z | xargs -0 npx secretlint --maskSecrets --no-gitignore
+        run: git ls-files -z | xargs -0 -r npx secretlint --maskSecrets --no-gitignore
 
       - name: Dependency audit (high+)
         run: npm audit --audit-level=high
