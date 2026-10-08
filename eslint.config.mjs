@@ -16,6 +16,9 @@ export default tseslint.config(
       '.*.js',
       'next-env.d.ts',
       'playwright-report/**',
+      'test-results/**',
+      'blob-report/**',
+      'playwright/.cache/**',
       '.claude/**',
       '.scratch/**',
     ],
@@ -84,8 +87,8 @@ export default tseslint.config(
     },
   },
 
-  // Files outside tsconfig's include - no type checking. Covers every extension
-  // eslint-config-next lints, so typed rules never load without type information.
+  // Files outside tsconfig's include (ts/tsx only): every other extension ESLint or
+  // eslint-config-next lints. Typed rules crash without type information.
   {
     files: ['**/*.{js,jsx,mjs,cjs,cts}'],
     extends: [tseslint.configs.disableTypeChecked],
