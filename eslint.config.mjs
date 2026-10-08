@@ -87,7 +87,7 @@ export default tseslint.config(
     },
   },
 
-  // Files outside tsconfig's include (ts/tsx only): every other extension ESLint or
+  // Files outside tsconfig's include (ts/tsx/mts): every other extension ESLint or
   // eslint-config-next lints. Typed rules crash without type information.
   {
     files: ['**/*.{js,jsx,mjs,cjs,cts}'],
