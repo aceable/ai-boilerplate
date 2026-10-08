@@ -273,7 +273,7 @@ None.
 | glob-to-regexp | 0.4.1 | BSD-2-Clause |
 | js-cookie | 3.0.8 | MIT |
 | json-schema | 0.4.0 | (AFL-2.1 OR BSD-3-Clause) |
-| lucide-react | 0.575.0 | ISC |
+| lucide-react | 1.49.0 | ISC |
 | nanoid | 3.3.19 | MIT |
 | next | 16.3.8 | MIT |
 | next-themes | 0.4.6 | MIT |
@@ -608,7 +608,7 @@ None.
 | doctrine | 2.1.0 | Apache-2.0 |
 | dom-accessibility-api | 0.5.16 | MIT |
 | dom-accessibility-api | 0.6.3 | MIT |
-| dotenv | 17.4.2 | BSD-2-Clause |
+| dotenv | 18.0.5 | BSD-2-Clause |
 | dunder-proto | 1.0.1 | MIT |
 | editions | 6.22.0 | Artistic-2.0 |
 | electron-to-chromium | 1.5.443 | ISC |
