@@ -29,7 +29,7 @@
         "lint:all": "next lint && tsc --noEmit",
         "knip:deps": "knip --dependencies",
         "licenses": "node scripts/licenses.mts",
-        "licenses:check": "node scripts/licenses.mts && git diff --exit-code LICENSES.md",
+        "licenses:check": "git ls-files --error-unmatch LICENSES.md >/dev/null && node scripts/licenses.mts && git diff --exit-code LICENSES.md",
         "setup": "./scripts/setup-all.sh",
         "setup:gh": "./scripts/setup-github-cli.sh",
         "setup:protect": "./scripts/setup-branch-protection.sh",
@@ -96,7 +96,7 @@
         "vitest": "^4.1.6"
     },
     "lint-staged": {
-        "*.{ts,tsx}": [
+        "*.{ts,tsx,mts}": [
             "eslint --fix"
         ],
         "*": [

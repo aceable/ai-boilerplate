@@ -78,6 +78,7 @@ jobs:
       - name: LICENSES.md is current
         if: ${{ !cancelled() }}
         run: |
+          git ls-files --error-unmatch LICENSES.md
           npm run licenses
           git diff --exit-code LICENSES.md || { echo "::error file=LICENSES.md::LICENSES.md is stale. Run npm run licenses and commit the result."; exit 1; }
 

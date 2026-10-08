@@ -41,11 +41,8 @@ const INTERNAL_SCOPE = '@aceable/';
 // Licenses that permit commercial use and closed-source distribution without copyleft obligations
 const PERMISSIVE_LICENSE_SET = new Set(['0BSD', 'Apache-2.0', 'BlueOak-1.0.0', 'BSD-2-Clause', 'BSD-3-Clause', 'CC-BY-4.0', 'CC0-1.0', 'ISC', 'MIT', 'MIT-0', 'Python-2.0', 'Unlicense', 'Zlib']);
 
-// Manifests that misstate their own license; each entry names what the package's LICENSE file grants
-const LICENSE_OVERRIDE_BY_KEY: Record<string, string> = {
-  // the manifest folds its MIT option into the LGPL entry; LICENSE offers either
-  'xmldom@0.1.19': '(LGPL OR MIT)',
-};
+// Manifests that misstate their own license, keyed `name@version`; each entry names what the package's LICENSE file grants
+const LICENSE_OVERRIDE_BY_KEY: Record<string, string> = {};
 
 // Recognizable license texts, for packages whose manifest declares no license or points at a file
 const LICENSE_TEXT_PATTERN_LIST: [RegExp, string][] = [
@@ -129,7 +126,7 @@ function isPermissive(license: string): boolean {
   const andPartList = splitTopLevel(expression, 'AND');
   if (andPartList.length > 1) return andPartList.every(isPermissive);
   // "X WITH exception" keeps X's terms plus an extra permission
-  const [licenseId] = expression.split(' WITH ');
+  const licenseId = expression.split(' WITH ')[0] ?? expression;
   return PERMISSIVE_LICENSE_SET.has(licenseId.trim());
 }
 
@@ -218,7 +215,7 @@ function render(rowList: PackageRow[]): string {
     '',
     '## Internal Packages',
     '',
-    renderTable(internalList),
+    internalList.length ? renderTable(internalList) : 'None.',
     '',
     '## Production Dependencies',
     '',
@@ -233,4 +230,4 @@ function render(rowList: PackageRow[]): string {
 
 const rowList = readPackageRowList();
 fs.writeFileSync(OUTPUT_FILE, render(rowList));
-console.log(`Wrote ${path.relative(ROOT_DIR, OUTPUT_FILE)} (${rowList.length} packages)`);
+console.info(`Wrote ${path.relative(ROOT_DIR, OUTPUT_FILE)} (${rowList.length} packages)`);

@@ -150,7 +150,8 @@ Run this checklist after every template merge. The point is to catch breaking ch
    - `npm run build`
    - `npm run test:e2e` (only if upstream changed routing, middleware, or auth)
 4. **Diff config files this repo customized.** `git diff HEAD~1 -- .env.example tailwind.config.ts next.config.ts drizzle.config.ts` — if the template added new required env vars or changed a config shape, mirror the change in `.env.local` and (if deploying) the Railway/hosting env.
-5. **Verify auth + theme still wire correctly.** Both the optional-auth flag (see [Auth Setup](#auth-setup-clerk)) and the system-theme path. If the upstream changed `src/lib/env.ts` or `src/middleware.ts`, re-confirm `USER_AUTH_ENABLED` resolves as expected.
+5. **Regenerate `LICENSES.md`.** `npm run licenses` — a clean merge runs no pre-commit hook, so it stays stale otherwise.
+6. **Verify auth + theme still wire correctly.** Both the optional-auth flag (see [Auth Setup](#auth-setup-clerk)) and the system-theme path. If the upstream changed `src/lib/env.ts` or `src/middleware.ts`, re-confirm `USER_AUTH_ENABLED` resolves as expected.
 
 ### Handling major / breaking template versions
 

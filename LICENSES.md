@@ -72,8 +72,7 @@ Licenses outside the permissive set (0BSD, Apache-2.0, BlueOak-1.0.0, BSD-2-Clau
 
 ## Internal Packages
 
-| Package | Version | License |
-| --- | --- | --- |
+None.
 
 ## Production Dependencies
 
