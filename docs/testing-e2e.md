@@ -2,16 +2,17 @@
 
 ## Auth Bypass
 
-Clerk auth is bypassed in Playwright tests via `PLAYWRIGHT_TESTING=true`, set automatically in `tests/global-setup.ts`. The middleware checks for this in development only — production ignores it.
+Clerk auth is bypassed in Playwright tests via `PLAYWRIGHT_TESTING=true`, set automatically in `tests/global-setup.ts`. The proxy honors it in any non-production build; production builds compile `IS_PLAYWRIGHT` to `false`.
 
 ```typescript
-// src/middleware.ts
-if (process.env.NODE_ENV === 'development' && process.env['PLAYWRIGHT_TESTING'] === 'true') {
-  return; // skip auth
-}
+// src/lib/env.ts
+export const IS_PLAYWRIGHT = process.env['PLAYWRIGHT_TESTING'] === 'true' && !IS_PROD;
+
+// src/proxy.ts
+if (IS_PLAYWRIGHT) return; // skip auth
 ```
 
-If tests are failing with auth redirects, verify `global-setup.ts` is setting the variable and `NODE_ENV=development`.
+If tests are failing with auth redirects, verify `global-setup.ts` is setting the variable and the server is not a production build.
 
 ## data-testid
 

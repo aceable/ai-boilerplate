@@ -16,8 +16,8 @@ const clerkMiddlewareInstance = clerkMiddleware(async (auth, request) => {
   }
 });
 
-// When ENABLE_USER_AUTH=0, skip Clerk entirely — no middleware-level protection,
-// no Clerk runtime imports executed at the edge. Useful for public sites.
+// When ENABLE_USER_AUTH=0, skip Clerk entirely — no proxy-level protection and
+// no Clerk request handling. Useful for public sites.
 export default USER_AUTH_ENABLED ? clerkMiddlewareInstance : () => NextResponse.next();
 
 export const config = {

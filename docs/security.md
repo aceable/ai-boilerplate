@@ -97,7 +97,7 @@ required for its job. Scope determines blast radius when a credential leaks.
 ## 5. Public Routes and Authentication
 
 Auth middleware should **fail closed** (deny by default, allow only
-explicitly listed routes). This template's `src/middleware.ts` does this:
+explicitly listed routes). This template's `src/proxy.ts` does this:
 every route is protected unless it matches the `isPublicRoute` matcher.
 
 If a route that should require authentication is accidentally exposed:

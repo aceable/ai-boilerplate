@@ -15,7 +15,7 @@ test('health endpoint returns 200', async ({ request }) => {
 
 test('home route responds without crashing', async ({ request }) => {
   // This is a pipeline-health check, not an auth-gate check. The template
-  // ships a Playwright bypass in src/middleware.ts that returns 200 for
+  // ships a Playwright bypass in src/proxy.ts that returns 200 for
   // protected routes when PLAYWRIGHT_TESTING=true (set by tests/global-setup.ts),
   // so a strict 3xx-redirect assertion isn't reachable from this spec.
   //
