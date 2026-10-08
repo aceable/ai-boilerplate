@@ -6,7 +6,7 @@
     "src/lib/ai.ts",
     "src/lib/ai-response.ts",
     "src/lib/db.ts",
-    "scripts/**/*.{js,mjs}"
+    "scripts/**/*.{js,mjs,ts,mts}"
   ],
   "project": ["**/*.{js,mjs,ts,tsx,css}"],
   "ignore": [".agents/**", ".claude/**"],
