@@ -42,7 +42,7 @@ export default tseslint.config(
 
   // TypeScript files with typed linting
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,mts}'],
     languageOptions: {
       parserOptions: {
         projectService: true,

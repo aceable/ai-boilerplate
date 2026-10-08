@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // The next, vitest, playwright, drizzle and eslint plugins supply their own entry points
+  "entry": [
+    // starter modules child repos build on; the docs point at them, nothing in the template imports them yet
+    "src/lib/ai.ts",
+    "src/lib/ai-response.ts",
+    "src/lib/db.ts",
+    "scripts/**/*.{js,mjs,ts,mts}"
+  ],
+  "project": ["**/*.{js,mjs,ts,tsx,css}"],
+  "ignore": [".agents/**", ".claude/**"],
+  "ignoreDependencies": [
+    // template default for Zod schemas from Drizzle tables; used once a fork defines its first table
+    "drizzle-zod",
+    // loaded by name from .secretlintrc.json
+    "@secretlint/secretlint-rule-preset-recommend",
+    // loaded by name through compat.extends("next/core-web-vitals") in eslint.config.mjs
+    "eslint-config-next",
+    // docs/testing-strategy.md has integration specs render with it; none exist in the template yet
+    "@testing-library/react"
+  ],
+  "ignoreBinaries": [
+    // global CLI installed per docs/DEVELOPMENT.md, not a package dependency
+    "neonctl"
+  ]
+}
