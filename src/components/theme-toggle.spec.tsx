@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from 'next-themes';
 import { ThemeToggle } from './theme-toggle';
@@ -37,19 +38,21 @@ describe('ThemeToggle', () => {
     expect(html).not.toContain('Toggle theme');
   });
 
-  it('renders the button on the client and switches light to dark', () => {
+  it('renders the button on the client and switches light to dark', async () => {
+    const user = userEvent.setup();
     render(
       <ThemeProvider attribute="class" defaultTheme="light">
         <ThemeToggle />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
+    await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
     expect(document.documentElement).toHaveClass('dark');
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
+    await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
     expect(document.documentElement).toHaveClass('light');
   });
 
-  it('switches to light in one click when the system theme is dark', () => {
+  it('switches to light in one click when the system theme is dark', async () => {
+    const user = userEvent.setup();
     prefersDark = true;
     render(
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -57,7 +60,7 @@ describe('ThemeToggle', () => {
       </ThemeProvider>,
     );
     expect(document.documentElement).toHaveClass('dark');
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
+    await user.click(screen.getByRole('button', { name: 'Toggle theme' }));
     expect(document.documentElement).toHaveClass('light');
   });
 });
