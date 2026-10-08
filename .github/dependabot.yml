@@ -36,14 +36,28 @@ updates:
     # Optional: reduce noise
     # open-pull-requests-limit: 2
 
-    # Block major bumps that are gated behind a coordinated Next.js 16 migration.
-    # Re-enable once Next 15 → 16 lands across the template-derived repos:
-    # eslint-config-next 16 requires Next 16; eslint 10 requires eslint-config-next 16.
+    # Held until upstream support lands. Re-check each on a manual upgrade.
+    #   eslint, @eslint/js 10: eslint-config-next bundles eslint-plugin-react/import/jsx-a11y,
+    #     whose peers stop at eslint 9 (plugin-react crashes on eslint 10).
+    #   typescript 6.1+ and 7: typescript-eslint supports typescript <6.1 only.
+    #   typescript-eslint 9: eslint-config-next depends on ^8 and registers the same plugin;
+    #     two copies crash flat config.
+    #   jsdom 30: requires Node ^24.15.0, above engines.node >=24.0.0.
     ignore:
       - dependency-name: "eslint"
         update-types:
           - "version-update:semver-major"
-      - dependency-name: "eslint-config-next"
+      - dependency-name: "@eslint/js"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "typescript-eslint"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "jsdom"
         update-types:
           - "version-update:semver-major"
 
