@@ -92,10 +92,11 @@ export default tseslint.config(
     },
   },
 
-  // JavaScript files - no type checking
+  // Files outside tsconfig's include - no type checking. Covers every extension
+  // eslint-config-next lints, so typed rules never load without type information.
   {
-    files: ['**/*.{js,mjs,cjs}'],
-    ...tseslint.configs.disableTypeChecked,
+    files: ['**/*.{js,jsx,mjs,cjs,cts}'],
+    extends: [tseslint.configs.disableTypeChecked],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },
