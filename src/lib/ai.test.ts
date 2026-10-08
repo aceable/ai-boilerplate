@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MockLanguageModelV4 } from 'ai/test';
+import { z } from 'zod';
 
 // The provider is the network boundary, so only its factory is mocked.
 // generateText stays real: it is what validates and shapes the prompt.
@@ -34,6 +35,7 @@ describe('generateWithAI', () => {
     vi.resetModules();
     current = mockModel('hello back');
     provider.model = current;
+    provider.modelId = '';
   });
 
   it('sends the system message as a system prompt ahead of the user turn', async () => {
@@ -42,6 +44,7 @@ describe('generateWithAI', () => {
     const text = await generateWithAI('hello', 'be brief');
 
     expect(text).toBe('hello back');
+    expect(current.doGenerateCalls).toHaveLength(1);
     expect(current.doGenerateCalls[0]?.prompt).toEqual([
       { role: 'system', content: 'be brief' },
       { role: 'user', content: [{ type: 'text', text: 'hello' }] },
@@ -65,5 +68,32 @@ describe('generateWithAI', () => {
 
     expect(provider.modelId).toBe('claude-sonnet-4-20250514');
     expect(current.doGenerateCalls[0]?.temperature).toBe(0.8);
+  });
+});
+
+describe('generateTypedObject', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it('returns the schema-parsed object and folds the system text into the prompt', async () => {
+    const current = mockModel('{"name":"x"}');
+    provider.model = current;
+    const { generateTypedObject } = await import('./ai');
+
+    const result = await generateTypedObject(z.object({ name: z.string() }), 'hi', 'sys');
+
+    expect(result).toEqual({ name: 'x' });
+    expect(current.doGenerateCalls[0]?.prompt).toEqual([
+      { role: 'user', content: [{ type: 'text', text: 'sys\n\nhi' }] },
+    ]);
+    expect(current.doGenerateCalls[0]?.responseFormat).toMatchObject({ type: 'json' });
+  });
+
+  it('rejects model output that fails the schema', async () => {
+    provider.model = mockModel('{"name":1}');
+    const { generateTypedObject } = await import('./ai');
+
+    await expect(generateTypedObject(z.object({ name: z.string() }), 'hi')).rejects.toThrow();
   });
 });

@@ -4,21 +4,22 @@ import { renderToString } from 'react-dom/server';
 import { ThemeProvider } from 'next-themes';
 import { ThemeToggle } from './theme-toggle';
 
+// next-themes reads prefers-color-scheme through matchMedia, which jsdom lacks.
+let prefersDark = false;
+
 beforeEach(() => {
-  // next-themes reads prefers-color-scheme through matchMedia, which jsdom lacks.
+  prefersDark = false;
   vi.stubGlobal(
     'matchMedia',
     vi.fn((query: string) => ({
-      media: query,
-      matches: false,
+      matches: query === '(prefers-color-scheme: dark)' && prefersDark,
       addListener: vi.fn(),
       removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
     })),
   );
   localStorage.clear();
   document.documentElement.className = '';
+  document.documentElement.removeAttribute('style');
 });
 
 afterEach(() => {
@@ -44,5 +45,19 @@ describe('ThemeToggle', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
     expect(document.documentElement).toHaveClass('dark');
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
+    expect(document.documentElement).toHaveClass('light');
+  });
+
+  it('switches to light in one click when the system theme is dark', () => {
+    prefersDark = true;
+    render(
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeToggle />
+      </ThemeProvider>,
+    );
+    expect(document.documentElement).toHaveClass('dark');
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle theme' }));
+    expect(document.documentElement).toHaveClass('light');
   });
 });

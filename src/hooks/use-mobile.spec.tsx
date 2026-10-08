@@ -17,9 +17,11 @@ beforeEach(() => {
       get matches() {
         return matches;
       },
-      addEventListener: (_type: string, cb: () => void) => listeners.push(cb),
-      removeEventListener: (_type: string, cb: () => void) => {
-        listeners = listeners.filter((l) => l !== cb);
+      addEventListener: (type: string, cb: () => void) => {
+        if (type === 'change') listeners.push(cb);
+      },
+      removeEventListener: (type: string, cb: () => void) => {
+        if (type === 'change') listeners = listeners.filter((l) => l !== cb);
       },
     })),
   );
@@ -37,8 +39,13 @@ describe('useIsMobile', () => {
 
   it('is true on the first client render when the mobile query matches', () => {
     matches = true;
-    const { result } = renderHook(() => useIsMobile());
-    expect(result.current).toBe(true);
+    const seen: boolean[] = [];
+    renderHook(() => {
+      const value = useIsMobile();
+      seen.push(value);
+      return value;
+    });
+    expect(seen[0]).toBe(true);
   });
 
   it('is false when the mobile query does not match', () => {
