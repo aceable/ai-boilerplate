@@ -42,12 +42,13 @@ Headings:
 - README onboarding prompt: Node version corrected from v20+ to v24 (matches `.nvmrc`); `nvm install` invocation reads `.nvmrc` instead of pinning `20`.
 - `.template-source` updated from `aceable-ai/ai-boilerplate` to `aceable/ai-boilerplate` after the GitHub org transfer.
 - `.gitignore`: added `!.env.example` exception so the template tracks the example file.
-- All dependencies upgraded to their latest release outside the `.npmrc` 7-day cooldown, and `package-lock.json` regenerated so transitive packages refresh too. Majors that need action are under BREAKING. Held below latest, with reasons in `.github/dependabot.yml`: ESLint and `@eslint/js` 9.39, TypeScript 6.0, jsdom 29.
+- lint-staged runs `eslint --fix --no-warn-ignored` on js/jsx/mjs/cjs/mts/cts as well as ts/tsx, and every secret scan passes `--no-gitignore` and `--maskSecrets`. CI scans `git ls-files`.
+- All dependencies upgraded to their latest release outside the `.npmrc` 7-day cooldown, and `package-lock.json` regenerated so transitive packages refresh too. Every major is under BREAKING. Held below latest, with reasons in `.github/dependabot.yml`: ESLint and `@eslint/js` 9.39, TypeScript 6.0, jsdom 29.
 
 ### Removed
 
 - `@eslint/eslintrc`: eslint-config-next 16 ships native flat config, so FlatCompat is gone.
-- `js-cookie` npm override: Clerk 7's `@clerk/shared` depends on js-cookie 3.0.8 directly.
+- `js-cookie` npm override (see Security).
 
 ### Fixed
 
@@ -56,8 +57,7 @@ Headings:
 ### Security
 
 - js-cookie GHSA-qjx8-664m-686j is cleared by Clerk 7 (`@clerk/shared` pins js-cookie 3.0.8); no override needed.
-- Secret scans pass `--no-gitignore` (lint-staged, `.husky/pre-push`, CI), and CI scans `git ls-files`. secretlint 13 otherwise skips gitignored paths, even when named explicitly, so a force-added `.env` or key file passed every layer.
-- `npm audit` drops from 34 advisories (1 critical, 18 high) to 9 (5 high, 4 moderate). The rest have no non-breaking fix: `braces` GHSA-vfj7-8cjw-p6xm has no patched release and is reached only through eslint-config-next's dev-only lint plugin; the moderate `esbuild` chain comes from `drizzle-kit`. CI's `npm audit --audit-level=high` step and the pre-push audit stay red until that changes.
+- `npm audit` reports 9 advisories (5 high, 4 moderate) with no non-breaking fix: `braces` GHSA-vfj7-8cjw-p6xm has no patched release and is reached only through eslint-config-next's dev-only lint plugin; the moderate `esbuild` chain comes from `drizzle-kit`. CI's `npm audit --audit-level=high` step and the pre-push audit stay red until that changes.
 
 ### BREAKING
 
@@ -65,23 +65,26 @@ Headings:
 - **`.husky/pre-commit` now blocks on knip findings.** When `package.json`, `package-lock.json`, or `knip.jsonc` is staged it runs `npm run knip:deps` and regenerates `LICENSES.md`. Migration: resolve knip findings (or list the package in `knip.jsonc` `ignoreDependencies` with a reason) or the pre-commit gate blocks manifest commits.
 - **Deploy migration path changed — child repos must adopt during sync.** `db:migrate` now runs `node scripts/migrate.mjs` (was `drizzle-kit migrate`), and `railway.json` runs it in `deploy.preDeployCommand` (was chained into `startCommand`). Migration: pull `scripts/migrate.mjs`, repoint `db:migrate` in `package.json`, and move migrations to `preDeployCommand` in `railway.json` (drop any `db:migrate && next start` chain). A repo whose schema was managed by `drizzle-kit push` has no migration ledger — it must generate a baseline (`npm run db:generate`) and mark it applied on already-populated DBs before the first preDeploy migrate, or the baseline's `CREATE TABLE`s collide. See `tickets-aceable-ai#74` for the reference cutover.
 
-- **Next.js 16.** `next lint` is gone and `next build` no longer lints: point `lint`, `lint:fix` and `lint:all` at `eslint .` and keep lint in CI. Port any `src/middleware.ts` customizations into `src/proxy.ts`, then delete `middleware.ts`; the build fails when both exist. Proxy always runs on Node.js. In `eslint.config.mjs`, replace FlatCompat's `compat.extends("next/core-web-vitals")` with `...nextCoreWebVitals` from `eslint-config-next/core-web-vitals`, and give non-TS files (`js,jsx,mjs,cjs,mts,cts`) `extends: [tseslint.configs.disableTypeChecked]`, or typed rules crash on them. Next rewrites `tsconfig.json` itself (`jsx: react-jsx`).
+- **Next.js 16: lint.** `next lint` is gone and `next build` no longer lints. Point `lint`, `lint:fix` and `lint:all` at `eslint .` and keep lint in CI. `eslint .` also lints `tests/`, `scripts/` and root files that `next lint` skipped; expect new findings there.
+- **Next.js 16: proxy.** Port any `src/middleware.ts` customizations into `src/proxy.ts`, then delete `middleware.ts`; the build fails when both exist. Proxy always runs on Node.js.
+- **Next.js 16: ESLint config.** Replace FlatCompat's `compat.extends("next/core-web-vitals")` with `...nextCoreWebVitals` from `eslint-config-next/core-web-vitals`. Give files outside tsconfig `include` (`js,jsx,mjs,cjs,mts,cts` by default) `extends: [tseslint.configs.disableTypeChecked]`, or typed rules crash on them. Next rewrites `tsconfig.json` itself (`jsx: react-jsx`).
 - **eslint-plugin-react-hooks 7 (via eslint-config-next 16)** errors on `setState` called synchronously in an effect. ThemeToggle and `useIsMobile` now use `useSyncExternalStore`; fix the same pattern in your components.
 - **Clerk Core 3 (`@clerk/nextjs` 7).** Replace `<SignedIn>`/`<SignedOut>` with `<Show when="signed-in">`/`<Show when="signed-out">`; the old components type-check but throw on render. Rename `appearance.layout` to `appearance.options`. Move `<ClerkProvider>` inside `<body>`. With `pk_live_*` keys on a `*.vercel.app` host, `clerkMiddleware` now proxies `/__clerk/*` to Clerk unless `CLERK_DISABLE_AUTO_PROXY` is set.
 - **AI SDK 7.** `generateText` throws `InvalidPromptError` when `messages` contains a `role: 'system'` entry. Pass system text as `instructions` (see `generateWithAI` in `src/lib/ai.ts`).
 - **TypeScript 6.** `@types/*` packages are no longer loaded implicitly. If you relied on ambient types, list them in `compilerOptions.types`.
 - **lucide-react 1.** Brand icons (`Github` and others) were removed; use an inline SVG instead.
 - **secretlint 13.** Gitignored paths are skipped unless `--no-gitignore` is passed. Copy the flag into any secret-scan command you customized.
+- **Vitest 5, jest-dom 7, dotenv 18, lint-staged 17, `@types/node` 26.** No template change needed. If you customized `vitest.config.ts`, the jest-dom setup, or dotenv loading, read the upstream release notes.
 
 ### Notes for first-time downstream sync (to v1.0.0)
 
-Nothing in v1.0.0 is BREAKING in the semver sense — this is the first tagged release, so no prior template version exists to migrate from. The optional-auth flag and the new files are additive and default to behavior that matches the previous hand-rolled approach (Clerk on whenever keys are present).
+v1.0.0 is the first tag, but every BREAKING entry above applies to child repos created before it (Next 15, Clerk 6, AI SDK 6). Run the major-version flow in [Template Sync](AGENTS.md#template-sync). The optional-auth flag and the new files are additive and default to behavior that matches the previous hand-rolled approach (Clerk on whenever keys are present).
 
 What downstream sync agents should expect:
 
-- **Likely merge conflicts** in customized template files: `src/components/header.tsx`, `src/proxy.ts` (formerly `src/middleware.ts`), `src/app/layout.tsx`, `src/app/client-layout.tsx`, `src/app/page.tsx`. Resolution rule: keep your project-specific UI/branding, adopt the optional-auth flag wiring (read `USER_AUTH_ENABLED` from `src/lib/env.ts` in each).
+- **Likely merge conflicts** in customized template files: `src/components/header.tsx`, `src/proxy.ts` (formerly `src/middleware.ts`), `src/app/layout.tsx`, `src/app/client-layout.tsx`, `src/app/page.tsx`, `eslint.config.mjs`, `package.json` (scripts, lint-staged), `tsconfig.json`. Resolution rule: keep your project-specific UI/branding, adopt the optional-auth flag wiring (read `USER_AUTH_ENABLED` from `src/lib/env.ts` in each).
 - **New files that won't conflict** unless you happen to have files at the same paths: `src/lib/env.ts`, `src/app/sign-in/[[...sign-in]]/page.tsx`, `src/app/sign-up/[[...sign-up]]/page.tsx`, `src/components/theme-toggle.tsx`, `.github/workflows/build.yml`, `CHANGELOG.md`, `.template-sync-state` (you create this on first sync).
-- **No env var changes required.** If you set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` today, `USER_AUTH_ENABLED` resolves to true and the app behaves as it did before. Add `NEXT_PUBLIC_ENABLE_USER_AUTH=0` only if you want the new public-site mode.
+- **No env var changes required.** If you set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` today, `USER_AUTH_ENABLED` resolves to true and the app behaves as it did before. Add `NEXT_PUBLIC_ENABLE_USER_AUTH=0` only if you want the new public-site mode. With `pk_live_*` keys on a `*.vercel.app` host, Clerk 7 proxies `/__clerk/*` unless `CLERK_DISABLE_AUTO_PROXY` is set.
 - **Adopt `src/lib/env.ts` opportunistically.** Not required — your existing `process.env.*` reads keep working. But consolidating into the new module is a one-time cleanup worth doing during this sync, not a separate PR.
 
 ---
