@@ -923,7 +923,7 @@ None.
 | typed-array-byte-length | 1.0.3 | MIT |
 | typed-array-byte-offset | 1.0.4 | MIT |
 | typed-array-length | 1.0.7 | MIT |
-| typescript | 5.9.3 | Apache-2.0 |
+| typescript | 6.0.3 | Apache-2.0 |
 | typescript-eslint | 8.71.0 | MIT |
 | unbash | 4.0.12 | ISC |
 | unbox-primitive | 1.1.0 | MIT |
