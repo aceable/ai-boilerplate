@@ -34,7 +34,7 @@ Then: `npm install` → `cp .env.example .env.local` → fill credentials → `n
 
 ## Auth Setup (Clerk)
 
-Clerk is wired in and protects every route except `/sign-in`, `/sign-up`, `/api/health`. The flag `USER_AUTH_ENABLED` in `src/lib/env.ts` is the single source of truth — middleware, layout, and header all read it.
+Clerk is wired in and protects every route except `/sign-in`, `/sign-up`, `/api/health`. The flag `USER_AUTH_ENABLED` in `src/lib/env.ts` is the single source of truth — proxy, layout, and header all read it.
 
 ### Resolution
 
@@ -44,7 +44,7 @@ Clerk is wired in and protects every route except `/sign-in`, `/sign-up`, `/api/
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` missing or blank | `false` |
 | Otherwise | `true` |
 
-`false` → middleware no-ops, `ClerkProvider` is skipped, header omits sign-in/user buttons. The app boots as a public site with no Clerk runtime loaded.
+`false` → proxy no-ops, `ClerkProvider` is skipped, header omits sign-in/user buttons. The app boots as a public site with no Clerk runtime loaded.
 
 ### Test keys vs production keys (read this before deploying)
 
@@ -75,7 +75,7 @@ For Railway specifically, deploy via `railway up` from the repo root after `rail
 ### Files
 
 - `src/lib/env.ts` — flag resolution
-- `src/middleware.ts` — Clerk middleware or no-op
+- `src/proxy.ts` — Clerk proxy (Next 16 successor to middleware) or no-op
 - `src/app/layout.tsx` — conditional `<ClerkProvider>`
 - `src/components/header.tsx` — conditional sign-in / user button
 - `src/app/sign-in/[[...sign-in]]/page.tsx`, `src/app/sign-up/[[...sign-up]]/page.tsx` — Clerk `<SignIn />` / `<SignUp />`
@@ -148,10 +148,10 @@ Run this checklist after every template merge. The point is to catch breaking ch
    - `npm run lint:all` — type errors usually surface here first
    - `npm run test`
    - `npm run build`
-   - `npm run test:e2e` (only if upstream changed routing, middleware, or auth)
+   - `npm run test:e2e` (only if upstream changed routing, proxy, or auth)
 4. **Diff config files this repo customized.** `git diff HEAD~1 -- .env.example tailwind.config.ts next.config.ts drizzle.config.ts` — if the template added new required env vars or changed a config shape, mirror the change in `.env.local` and (if deploying) the Railway/hosting env.
 5. **Regenerate `LICENSES.md`.** `npm run licenses` — a clean merge runs no pre-commit hook, so it stays stale otherwise.
-6. **Verify auth + theme still wire correctly.** Both the optional-auth flag (see [Auth Setup](#auth-setup-clerk)) and the system-theme path. If the upstream changed `src/lib/env.ts` or `src/middleware.ts`, re-confirm `USER_AUTH_ENABLED` resolves as expected.
+6. **Verify auth + theme still wire correctly.** Both the optional-auth flag (see [Auth Setup](#auth-setup-clerk)) and the system-theme path. If the upstream changed `src/lib/env.ts` or `src/proxy.ts`, re-confirm `USER_AUTH_ENABLED` resolves as expected.
 
 ### Handling major / breaking template versions
 
@@ -176,7 +176,7 @@ If you're editing **this** template (not a child repo):
 
 ## Stack
 
-Next.js 15 (App Router, Turbopack) · React 19 · TypeScript strict · Tailwind CSS v4 · Drizzle ORM · Neon Postgres · Clerk Auth · AI SDK · Railway deployment
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict · Tailwind CSS v4 · Drizzle ORM · Neon Postgres · Clerk Auth · AI SDK · Railway deployment
 
 ---
 
@@ -237,7 +237,7 @@ src/
 ├── lib/              # Utilities, config, AI helpers
 │   └── config.ts     # APP_NAME and app-level constants (single source of truth)
 ├── hooks/            # Custom React hooks
-├── middleware.ts      # Clerk auth — protects all routes
+├── proxy.ts          # Clerk auth — protects all routes
 └── types/
 .scratch/             # Ephemeral experiments — gitignored, never committed
 ```
@@ -383,3 +383,13 @@ Imperative rules for AI assistants (Claude, Codex, Cursor). When a rule conflict
 npx skills add <name>
 # Browse: https://skills.sh/
 ```
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

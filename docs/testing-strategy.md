@@ -35,6 +35,8 @@ Two shapes, one rule per layer. Use this to route any new test to the right plac
 - Yes → **integration spec** — name it `*.spec.tsx`, lives next to the component or in `tests/components/`
 - No → **unit spec** — name it `*.test.ts`, lives next to the function or in `tests/lib/`
 
+Integration specs drive interactions with `@testing-library/user-event` (`const user = userEvent.setup()`, then `await user.click(...)`), not `fireEvent`. See `src/components/theme-toggle.spec.tsx`.
+
 This naming convention matches `vitest.config.ts` `include` globs.
 
 ## Where logic lives

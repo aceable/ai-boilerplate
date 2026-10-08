@@ -58,7 +58,7 @@ New to Railway? → https://docs.railway.com/quick-start
 3. Push to `main` — Railway auto-deploys and runs `db:migrate` before starting
 
 `railway.json` notes:
-- `--production=false` on install ensures devDeps (TypeScript, ESLint) are available for the build step
+- `--production=false` on install ensures devDeps (TypeScript) are available for the build step
 - `db:migrate` runs at startup so schema is always in sync before traffic hits
 - Railway injects `$PORT` automatically — no hardcoding needed
 

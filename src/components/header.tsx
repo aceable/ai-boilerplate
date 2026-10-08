@@ -1,6 +1,6 @@
 import { APP_NAME } from '@/lib/config';
 import { USER_AUTH_ENABLED } from '@/lib/env';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { Show, SignInButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -21,12 +21,12 @@ export default function Header() {
         <ThemeToggle />
         {USER_AUTH_ENABLED && (
           <>
-            <SignedOut>
+            <Show when="signed-out">
               <SignInButton />
-            </SignedOut>
-            <SignedIn>
+            </Show>
+            <Show when="signed-in">
               <UserButton />
-            </SignedIn>
+            </Show>
           </>
         )}
       </div>

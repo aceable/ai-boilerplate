@@ -44,7 +44,7 @@ documented in [`docs/security.md`](docs/security.md). At a glance:
 - **Branch protection** (`scripts/setup-branch-protection.sh`) — opt-in
   script that applies sensible defaults: required reviews, required status
   checks, no force-pushes, no branch deletion.
-- **Auth middleware** (`src/middleware.ts`) — fails closed; every route is
+- **Auth proxy** (`src/proxy.ts`) — fails closed; every route is
   protected unless explicitly listed as public.
 
 ## Disclosure
