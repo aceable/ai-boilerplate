@@ -22,3 +22,19 @@ for b in $protected_branches; do
 done
 
 npx lint-staged
+
+# Dependency checks run only when a manifest is staged. knip blocks, since the
+# author of the change can fix the finding; LICENSES.md regeneration is best effort.
+if git diff --cached --name-only | grep -qE '(^|/)package\.json$|^package-lock\.json$|^knip\.jsonc$'; then
+  printf '\n🧹 Checking dependencies (knip)\n'
+  npm run knip:deps --silent || exit 1
+fi
+
+if git diff --cached --name-only | grep -qE '(^|/)package\.json$|^package-lock\.json$'; then
+  printf '\n⚖️  Regenerating LICENSES.md\n'
+  if npm run licenses --silent; then
+    git add LICENSES.md
+  else
+    printf '⚠️  LICENSES.md was not regenerated (not blocking). Run npm run licenses later.\n' >&2
+  fi
+fi
