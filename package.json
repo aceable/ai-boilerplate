@@ -73,11 +73,11 @@
         "@commitlint/config-conventional": "^21.2.3",
         "@eslint/js": "^9.39.5",
         "@playwright/test": "^1.63.0",
-        "@secretlint/secretlint-rule-preset-recommend": "^9.3.3",
+        "@secretlint/secretlint-rule-preset-recommend": "^13.0.6",
         "@tailwindcss/postcss": "^4.3.3",
         "@testing-library/jest-dom": "^7.0.1",
         "@testing-library/react": "^16.3.3",
-        "@types/node": "^25.9.1",
+        "@types/node": "^26.6.3",
         "@types/react": "^19.3.0",
         "@types/react-dom": "^19.3.0",
         "@types/ws": "^8.18.2",
@@ -88,8 +88,8 @@
         "husky": "^9.1.7",
         "jsdom": "^29.1.1",
         "knip": "6.38.0",
-        "lint-staged": "^16.1.2",
-        "secretlint": "^9.3.3",
+        "lint-staged": "^17.6.0",
+        "secretlint": "^13.0.6",
         "tailwindcss": "^4.3.3",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.71.0",
@@ -100,7 +100,7 @@
             "eslint --fix --no-warn-ignored"
         ],
         "*": [
-            "secretlint --maskSecrets"
+            "secretlint --maskSecrets --no-gitignore"
         ]
     }
 }

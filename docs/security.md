@@ -51,7 +51,7 @@ This template runs **secretlint** at three layers:
 
 - **Pre-commit** (husky) — staged files via `lint-staged`
 - **Pre-push** (husky) — diff vs upstream
-- **CI** (`.github/workflows/ci.yml`) — full tree on every PR
+- **CI** (`.github/workflows/ci.yml`) — every tracked file on every PR
 
 If a scanner flags a secret, do this in order:
 
