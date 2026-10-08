@@ -17,10 +17,9 @@ export async function generateWithAI(prompt: string, systemMessage?: string) {
   const { text } = await generateText({
     model: aiConfig.model,
     temperature: aiConfig.temperature,
-    messages: [
-      ...(systemMessage ? [{ role: 'system' as const, content: systemMessage }] : []),
-      { role: 'user' as const, content: prompt },
-    ],
+    // AI SDK 7 rejects system messages inside `messages`; they go in `instructions`.
+    ...(systemMessage ? { instructions: systemMessage } : {}),
+    messages: [{ role: 'user' as const, content: prompt }],
   });
 
   return text;
