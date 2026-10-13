@@ -2,7 +2,7 @@
 # Pre-push: defense-in-depth checks before code leaves the machine.
 #   1. Block force-push to protected branches (main / master)
 #   2. Scan the diff vs upstream for secrets (secretlint)
-#   3. Run npm audit at --audit-level=high
+#   3. Run the npm audit gate (high+, minus the scripts/audit.mts allowlist)
 #
 # Skip entirely (emergencies only): SKIP_HUSKY=1 git push ...
 # Skip audit only (when fix is queued): SKIP_AUDIT=1 git push ...
@@ -42,9 +42,9 @@ fi
 if [ "$SKIP_AUDIT" = "1" ]; then
   printf '⚠️  Skipping npm audit (SKIP_AUDIT=1)\n' >&2
 else
-  printf '→ npm audit --audit-level=high\n'
-  npm audit --audit-level=high || {
-    printf '\n❌ npm audit found high/critical vulnerabilities.\n' >&2
+  printf '→ npm run audit:check\n'
+  npm run --silent audit:check || {
+    printf '\n❌ npm audit found high/critical vulnerabilities outside the allowlist in scripts/audit.mts.\n' >&2
     printf '   Resolve with: npm audit fix    (or run with SKIP_AUDIT=1 if fix is in flight)\n\n' >&2
     exit 1
   }

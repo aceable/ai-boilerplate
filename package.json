@@ -26,6 +26,7 @@
         "lint:all": "eslint . && tsc --noEmit",
         "knip:deps": "knip --dependencies",
         "licenses": "node scripts/licenses.mts",
+        "audit:check": "node scripts/audit.mts",
         "licenses:check": "git ls-files --error-unmatch LICENSES.md >/dev/null && node scripts/licenses.mts && git diff --exit-code LICENSES.md",
         "setup": "./scripts/setup-all.sh",
         "setup:gh": "./scripts/setup-github-cli.sh",

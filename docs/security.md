@@ -144,7 +144,9 @@ A vulnerable dependency is a vector regardless of how clean your code is.
 
 - **Dependabot** is enabled in this template (`.github/dependabot.yml`).
   Weekly grouped updates per ecosystem.
-- **`npm audit --audit-level=high`** runs pre-push and in CI.
+- **`npm run audit:check`** runs pre-push and in CI: `npm audit` fails on
+  high/critical except the advisories allowlisted by GHSA id in
+  `scripts/audit.mts`, each with a reason and a re-check date.
 - Lockfiles (`package-lock.json`) committed. Never delete them "to fix" a
   dependency issue.
 - Use `npm ci`, not `npm install`, in CI/CD.

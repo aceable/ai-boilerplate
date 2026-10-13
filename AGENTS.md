@@ -190,6 +190,7 @@ npm run lint:all     # ESLint + tsc together
 npm run knip:deps    # unused, unlisted, unresolved dependencies
 npm run licenses     # regenerate LICENSES.md from package-lock.json
 npm run licenses:check # regenerate and fail if LICENSES.md changed
+npm run audit:check  # npm audit high+, minus the scripts/audit.mts allowlist
 ```
 
 **Database:**
@@ -220,7 +221,7 @@ To **disable** either workflow on cost-sensitive forks: delete the file, comment
 
 **Git hooks** (auto-installed by `husky` on `npm install`):
 - `pre-commit` — blocks commits to `main`/`master`, runs lint-staged + secretlint; when `package.json`, `package-lock.json`, or `knip.jsonc` is staged, blocks on `knip:deps` findings and regenerates `LICENSES.md` (a failed regeneration only warns)
-- `pre-push` — blocks force-push to `main`/`master`, scans diff for secrets, runs `npm audit --audit-level=high`
+- `pre-push` — blocks force-push to `main`/`master`, scans diff for secrets, runs `npm run audit:check` (`npm audit` high+, minus the one-advisory allowlist in `scripts/audit.mts`)
 - `commit-msg` — enforces Conventional Commits + rejects credential-shaped strings
 - Emergency bypass: `SKIP_HUSKY=1 git ...` — use sparingly; no audit trail beyond the stderr warning
 
