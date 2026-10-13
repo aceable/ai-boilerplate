@@ -1,17 +1,7 @@
 // @ts-check
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import { FlatCompat } from "@eslint/eslintrc";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// For Next.js compatibility
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 
 export default tseslint.config(
   // Ignore patterns
@@ -26,17 +16,22 @@ export default tseslint.config(
       '.*.js',
       'next-env.d.ts',
       'playwright-report/**',
+      'test-results/**',
+      'blob-report/**',
+      'playwright/.cache/**',
       '.claude/**',
+      '.scratch/**',
     ],
   },
 
   // Base ESLint recommended rules
   eslint.configs.recommended,
 
-  // Next.js specific rules (using compat for now)
-  ...compat.extends("next/core-web-vitals"),
+  // Next.js specific rules (eslint-config-next ships native flat config)
+  ...nextCoreWebVitals,
 
-  // TypeScript strict rules with type checking
+  // TypeScript strict rules with type checking. Must follow nextCoreWebVitals: the
+  // typescript-eslint base config sets its parser for all files, replacing next's Babel parser.
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
 
@@ -92,10 +87,11 @@ export default tseslint.config(
     },
   },
 
-  // JavaScript files - no type checking
+  // Files outside tsconfig's include (ts/tsx/mts): every other extension ESLint or
+  // eslint-config-next lints. Typed rules crash without type information.
   {
-    files: ['**/*.{js,mjs,cjs}'],
-    ...tseslint.configs.disableTypeChecked,
+    files: ['**/*.{js,jsx,mjs,cjs,cts}'],
+    extends: [tseslint.configs.disableTypeChecked],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
     },

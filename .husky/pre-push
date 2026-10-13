@@ -2,7 +2,7 @@
 # Pre-push: defense-in-depth checks before code leaves the machine.
 #   1. Block force-push to protected branches (main / master)
 #   2. Scan the diff vs upstream for secrets (secretlint)
-#   3. Run npm audit at --audit-level=high
+#   3. Run the npm audit gate (high+, minus the scripts/audit.mts allowlist)
 #
 # Skip entirely (emergencies only): SKIP_HUSKY=1 git push ...
 # Skip audit only (when fix is queued): SKIP_AUDIT=1 git push ...
@@ -31,7 +31,8 @@ upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo "origin/
 changed=$(git diff --name-only --diff-filter=ACMR "$upstream"...HEAD 2>/dev/null || true)
 if [ -n "$changed" ]; then
   printf '→ secretlint on diff vs %s\n' "$upstream"
-  echo "$changed" | tr '\n' '\0' | xargs -0 npx secretlint || {
+  # -z keeps git from C-quoting non-ASCII paths, which secretlint would skip as missing files.
+  git diff -z --name-only --diff-filter=ACMR "$upstream"...HEAD | xargs -0 npx secretlint --maskSecrets --no-gitignore || {
     printf '\n❌ secretlint flagged a secret in the diff vs %s. Fix the code, then rotate the credential.\n\n' "$upstream" >&2
     exit 1
   }
@@ -41,9 +42,9 @@ fi
 if [ "$SKIP_AUDIT" = "1" ]; then
   printf '⚠️  Skipping npm audit (SKIP_AUDIT=1)\n' >&2
 else
-  printf '→ npm audit --audit-level=high\n'
-  npm audit --audit-level=high || {
-    printf '\n❌ npm audit found high/critical vulnerabilities.\n' >&2
+  printf '→ npm run audit:check\n'
+  npm run --silent audit:check || {
+    printf '\n❌ npm audit found high/critical vulnerabilities outside the allowlist in scripts/audit.mts.\n' >&2
     printf '   Resolve with: npm audit fix    (or run with SKIP_AUDIT=1 if fix is in flight)\n\n' >&2
     exit 1
   }

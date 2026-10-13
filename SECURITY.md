@@ -34,7 +34,8 @@ documented in [`docs/security.md`](docs/security.md). At a glance:
 - **Pre-commit hook** (`.husky/pre-commit`) — `secretlint` on staged files;
   blocks direct commits to `main`/`master`.
 - **Pre-push hook** (`.husky/pre-push`) — `secretlint` on diff vs upstream;
-  `npm audit --audit-level=high`; refuses force-pushes to protected branches.
+  `npm run audit:check` (`npm audit` high+, minus the allowlist in
+  `scripts/audit.mts`); refuses force-pushes to protected branches.
 - **commit-msg hook** (`.husky/commit-msg`) — `commitlint` with a rule that
   rejects credential-shaped strings in commit messages.
 - **CI** (`.github/workflows/ci.yml`) — runs `lint`, `type-check`,
@@ -44,7 +45,7 @@ documented in [`docs/security.md`](docs/security.md). At a glance:
 - **Branch protection** (`scripts/setup-branch-protection.sh`) — opt-in
   script that applies sensible defaults: required reviews, required status
   checks, no force-pushes, no branch deletion.
-- **Auth middleware** (`src/middleware.ts`) — fails closed; every route is
+- **Auth proxy** (`src/proxy.ts`) — fails closed; every route is
   protected unless explicitly listed as public.
 
 ## Disclosure

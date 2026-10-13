@@ -14,11 +14,7 @@
     // template default for Zod schemas from Drizzle tables; used once a fork defines its first table
     "drizzle-zod",
     // loaded by name from .secretlintrc.json
-    "@secretlint/secretlint-rule-preset-recommend",
-    // loaded by name through compat.extends("next/core-web-vitals") in eslint.config.mjs
-    "eslint-config-next",
-    // docs/testing-strategy.md has integration specs render with it; none exist in the template yet
-    "@testing-library/react"
+    "@secretlint/secretlint-rule-preset-recommend"
   ],
   "ignoreBinaries": [
     // global CLI installed per docs/DEVELOPMENT.md, not a package dependency

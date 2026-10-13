@@ -1,6 +1,6 @@
 #!/bin/sh
 # Pre-commit: block commits to protected branches, then run lint-staged
-# (eslint --fix on TS/TSX + secretlint on every staged file).
+# (eslint --fix on JS/TS-family files + secretlint --no-gitignore on every staged file).
 #
 # Override (use sparingly):  ALLOW_MAIN_COMMIT=1 git commit ...
 # Skip entirely (emergencies only):  SKIP_HUSKY=1 git commit ...

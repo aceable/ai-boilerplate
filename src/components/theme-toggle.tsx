@@ -2,13 +2,16 @@
 
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+
+// false on the server and during hydration, true once mounted on the client.
+const subscribeNoop = () => () => undefined;
+const getMounted = () => true;
+const getServerMounted = () => false;
 
 export function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribeNoop, getMounted, getServerMounted);
 
   // Avoid hydration mismatch — render a neutral placeholder until mounted.
   if (!mounted) {
