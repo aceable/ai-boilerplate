@@ -21,23 +21,26 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const content = (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <MyThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ClientLayout>{children}</ClientLayout>
-          <Toaster />
-        </MyThemeProvider>
-      </body>
-    </html>
+    <MyThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <ClientLayout>{children}</ClientLayout>
+      <Toaster />
+    </MyThemeProvider>
   );
 
-  if (!USER_AUTH_ENABLED) return content;
-
+  // Clerk Core 3 requires ClerkProvider inside <body>, not wrapping <html>.
   return (
-    <ClerkProvider
-      appearance={{ layout: { unsafe_disableDevelopmentModeWarnings: true } }}
-    >
-      {content}
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        {USER_AUTH_ENABLED ? (
+          <ClerkProvider
+            appearance={{ options: { unsafe_disableDevelopmentModeWarnings: true } }}
+          >
+            {content}
+          </ClerkProvider>
+        ) : (
+          content
+        )}
+      </body>
+    </html>
   );
 }

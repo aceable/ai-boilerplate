@@ -23,7 +23,7 @@ export const IS_PLAYWRIGHT =
 //   1. NEXT_PUBLIC_ENABLE_USER_AUTH=0 (or "false") — auth OFF regardless of keys.
 //   2. NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY missing/blank — auth OFF (graceful local
 //      dev: clone + `npm run dev` Just Works without any env setup).
-//   3. Otherwise — auth ON. Middleware protects, ClerkProvider wraps, sign-in/
+//   3. Otherwise — auth ON. Proxy protects, ClerkProvider wraps, sign-in/
 //      user buttons render.
 
 // Strip whitespace + surrounding quotes so values like `"0"` or ` 0 `

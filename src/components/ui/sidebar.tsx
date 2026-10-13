@@ -72,6 +72,8 @@ const SidebarProvider = React.forwardRef<
   }, [isMobile, setOpen, setOpenMobile]);
 
   React.useEffect(() => {
+    // setOpen also writes the sidebar cookie and notifies a controlling parent, so this sync stays an effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(!isMobile);
   }, [isMobile]);
 

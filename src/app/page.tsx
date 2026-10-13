@@ -8,7 +8,7 @@ const Page = () => {
           <Zap className="text-primary" /> AI Boilerplate
         </h1>
         <p className="text-muted-foreground">
-          A Next.js 15 starter with optional Clerk auth, system-aware theming, Tailwind v4, Neon Postgres, Drizzle ORM, and the Vercel AI SDK — runs out of the box with zero env setup.
+          A Next.js 16 starter with optional Clerk auth, system-aware theming, Tailwind v4, Neon Postgres, Drizzle ORM, and the Vercel AI SDK — runs out of the box with zero env setup.
         </p>
       </div>
 
@@ -45,7 +45,7 @@ const Page = () => {
         </h2>
         <ul className="space-y-1.5 text-sm">
           <li>
-            <a href="https://nextjs.org/docs" className="text-primary font-medium">Next.js 15</a>
+            <a href="https://nextjs.org/docs" className="text-primary font-medium">Next.js 16</a>
             {' '}— App Router, Server Components, Turbopack
           </li>
           <li>

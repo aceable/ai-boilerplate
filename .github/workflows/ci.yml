@@ -48,10 +48,40 @@ jobs:
         run: npm run test
 
       - name: Secret scan
-        run: npx secretlint --maskSecrets "**/*"
+        # Tracked files only; --no-gitignore so a force-added ignored file is still scanned.
+        run: git ls-files -z | xargs -0 -r npx secretlint --maskSecrets --no-gitignore
 
-      - name: Dependency audit (high+)
-        run: npm audit --audit-level=high
+      - name: Dependency audit (high+, allowlist in scripts/audit.mts)
+        run: npm run audit:check
+
+  # Advisory: not a required check and no job needs it, so a failure shows on the
+  # PR without blocking merge. Catches drift the pre-commit hook never sees
+  # (Dependabot, --no-verify, web edits).
+  dependency-drift:
+    name: Dependency drift (knip · LICENSES.md, advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unused dependencies (knip)
+        run: npm run knip:deps
+
+      # Runs even when knip fails, so one PR reports both problems
+      - name: LICENSES.md is current
+        if: ${{ !cancelled() }}
+        run: |
+          git ls-files --error-unmatch LICENSES.md
+          npm run licenses
+          git diff --exit-code LICENSES.md || { echo "::error file=LICENSES.md::LICENSES.md is stale. Run npm run licenses and commit the result."; exit 1; }
 
   e2e-and-build:
     name: Build + Playwright E2E
